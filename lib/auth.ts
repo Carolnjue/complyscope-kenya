@@ -1,7 +1,7 @@
 import 'server-only';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { q, one, exec } from './db';
 
 export const SESSION_COOKIE = 'cs_session';
@@ -33,7 +33,10 @@ export async function createSession(userId: number) {
   await exec('INSERT INTO sessions (id, user_id, expires_at) VALUES (?,?,?)', [sha256(token), userId, expires]);
   await exec('UPDATE users SET last_login_at = NOW() WHERE id = ?', [userId]);
   const jar = await cookies();
-  jar.set(SESSION_COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', expires });
+  // Mark the cookie Secure only when the visitor is actually on HTTPS, so sign-in also works before SSL is issued.
+  const h = await headers();
+  const https = (h.get('x-forwarded-proto') || '').split(',')[0].trim() === 'https' || (h.get('origin') || '').startsWith('https://') || (h.get('referer') || '').startsWith('https://');
+  jar.set(SESSION_COOKIE, token, { httpOnly: true, secure: https, sameSite: 'lax', path: '/', expires });
 }
 
 export async function destroySession() {
