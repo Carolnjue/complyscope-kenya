@@ -168,7 +168,7 @@ section.block{padding:64px 0}
 /* forms */
 label.f{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14.5px}
 label.f small{font-weight:400;color:var(--muted)}
-input[type=text],input[type=number],input[type=date],input[type=month],select,textarea{min-height:42px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);width:100%}
+input:not([type]),input[type=text],input[type=email],input[type=password],input[type=tel],input[type=search],input[type=url],input[type=number],input[type=date],input[type=month],select,textarea{min-height:42px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);width:100%}
 textarea{min-height:76px;resize:vertical}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:640px){.fgrid{grid-template-columns:1fr}}
@@ -258,7 +258,9 @@ table.t td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
 .show-sm{display:none}
 #siteNav a:hover{color:var(--accent) !important}
 [id]{scroll-margin-top:76px}
-@media(max-width:640px){.show-sm{display:inline-flex;align-items:center}
+#siteNav a{white-space:nowrap}
+@media(max-width:1023px){.show-sm{display:inline-flex;align-items:center}
+#siteNav:not(.open){display:none !important}
 #siteNav.open{display:flex !important;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:16px;background:#fff;padding:16px 20px;border-bottom:1px solid var(--border);box-shadow:0 8px 20px rgba(15,23,42,.08)}
 #headCta{padding:0 12px !important}}
 .ws{font-size:16px;line-height:1.55}
