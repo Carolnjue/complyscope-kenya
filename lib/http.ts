@@ -2,6 +2,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { currentUser, User } from './auth';
 import { access, Role } from './business';
+import { billingSettings, planState } from './billing';
 
 export function ok(data: any = {}, status = 200) { return NextResponse.json({ ok: true, ...data }, { status }); }
 export function fail(message: string, status = 400) { return NextResponse.json({ ok: false, error: message }, { status }); }
@@ -14,13 +15,18 @@ export async function needUser(): Promise<{ user: User } | { res: NextResponse }
   return { user };
 }
 
-export async function needBusiness(idParam: string, min: Role = 'viewer') {
+export async function needBusiness(idParam: string, min: Role = 'viewer', opts: { allowInactive?: boolean } = {}) {
   const u = await needUser();
   if ('res' in u) return u;
   const id = Number(idParam);
   if (!Number.isInteger(id) || id <= 0) return { res: fail('Business not found.', 404) };
   const a = await access(u.user.id, id, min, !!u.user.is_admin);
   if (!a) return { res: fail(min === 'viewer' ? 'Business not found.' : 'You do not have permission to change this business.', 403) };
+  // In paid mode, an ended plan makes the business read-only (viewing and exports still work).
+  if (min !== 'viewer' && !opts.allowInactive && !u.user.is_admin) {
+    const st = planState(a.business, await billingSettings());
+    if (!st.active) return { res: fail(st.message, 402) };
+  }
   return { user: u.user, business: a.business, role: a.role };
 }
 

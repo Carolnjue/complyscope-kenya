@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   if (await tooManyAttempts('signup:' + ip, 10, 60)) return fail('Too many sign-ups from this connection. Try again later.', 429);
   await noteAttempt('signup:' + ip);
   if (await one('SELECT id FROM users WHERE email = ?', [email])) return fail('An account with this email already exists. Sign in instead.');
-  const emailOn = integrationStatus().email;
+  const emailOn = (await integrationStatus()).email;
   const r = await exec('INSERT INTO users (email, name, phone, password_hash, is_admin, email_verified_at) VALUES (?,?,?,?,?, ' + (emailOn ? 'NULL' : 'NOW()') + ')',
     [email, name, normPhone(phone), await hashPassword(b.password), isSuperadminEmail(email) ? 1 : 0]);
   await audit(r.insertId, null, 'signup', email);

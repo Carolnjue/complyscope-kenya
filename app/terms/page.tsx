@@ -14,7 +14,9 @@ export default function Page() {
       <h2>4. Your data</h2>
       <p>You own the business data and documents you put into ComplyScope. You grant us permission to store and process them only to provide the service. Our <a href="/privacy">privacy policy</a> explains how we handle personal data.</p>
       <h2>5. Pilot, plans and payment</h2>
-      <p>During the pilot, ComplyScope is free. When paid plans start, prices are shown in Kenya shillings, are payable monthly in advance by M-Pesa and include VAT where applicable. We will give at least 30 days&apos; notice before any account moves from the free pilot to a paid plan. You can stop using the service at any time.</p>
+      <p>During the pilot, ComplyScope is free. When paid plans start, businesses that joined during the pilot keep full access free for at least 30 days, and we will tell owners by email. New businesses then start with a free trial.</p>
+      <p>Prices are shown in Kenya shillings on our website and in the Billing tab, and include VAT where applicable. Plans are paid in advance for one, three, six or twelve months, by M-Pesa or by the other payment methods shown in the Billing tab. A plan starts or extends when we receive and confirm payment. Prepaid periods are not refunded except where the law requires it.</p>
+      <p>If a trial or plan ends, your business becomes read-only: you can still see, print and export everything you saved, and full access returns as soon as you renew. You can stop using the service at any time.</p>
       <h2>6. Availability</h2>
       <p>We aim to keep ComplyScope available at all times but do not guarantee uninterrupted service. Reminders depend on email and SMS networks outside our control; do not rely on reminders alone.</p>
       <h2>7. Liability</h2>

@@ -6,7 +6,7 @@ import { sendEmail, emailLayout, button, appUrl, integrationStatus } from '@/lib
 export async function POST(req: Request) {
   const b = await body(req);
   const email = normEmail(b.email);
-  if (!integrationStatus().email) return fail('Password reset by email is not switched on yet. Contact support to reset your password.', 503);
+  if (!(await integrationStatus()).email) return fail('Password reset by email is not switched on yet. Contact support to reset your password.', 503);
   if (await tooManyAttempts('forgot:' + email, 5, 60)) return ok();
   await noteAttempt('forgot:' + email);
   const u = await one<any>('SELECT id, name FROM users WHERE email = ? AND is_disabled = 0', [email]);

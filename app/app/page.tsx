@@ -23,7 +23,7 @@ export default async function Page() {
   return (
     <div className="ws">
       <div className="wrap app-main">
-        {!user.email_verified_at && integrationStatus().email ? <VerifyBanner /> : null}
+        {!user.email_verified_at && (await integrationStatus()).email ? <VerifyBanner /> : null}
         {review !== 'complete' ? <div className="banner"><div className="small"><b>Pilot notice.</b> Rules and due dates come from KRA, SHA, NSSF, NITA, BRS, ODPC, DOSH and county sources and are being reviewed by a professional. Confirm amounts and dates with the authority before you file.</div></div> : null}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', flexWrap: 'wrap', gap: 12 }}>
           <div><p className="tiny muted" style={{ fontWeight: 700, letterSpacing: '.1em' }}>WELCOME, {user.name.split(' ')[0].toUpperCase()}</p><h1 style={{ fontSize: 28, fontWeight: 800 }}>My businesses</h1></div>

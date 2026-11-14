@@ -170,11 +170,20 @@ const SCHEMA: string[] = [
   ) ENGINE=InnoDB`,
 ];
 
+const UPGRADES: string[] = [
+  "ALTER TABLE payments ADD COLUMN method VARCHAR(12) NOT NULL DEFAULT 'mpesa'",
+  'ALTER TABLE payments ADD COLUMN months INT NOT NULL DEFAULT 1',
+  'ALTER TABLE payments ADD COLUMN reference VARCHAR(80) NULL',
+  'ALTER TABLE payments ADD COLUMN reviewed_by INT NULL',
+];
+
 export function migrate(): Promise<void> {
   if (!global.__csMigrated) {
     global.__csMigrated = (async () => {
       const p = pool();
       for (const sql of SCHEMA) await p.query(sql);
+      // Additive column upgrades for existing installs (ignored when the column already exists)
+      for (const sql of UPGRADES) { try { await p.query(sql); } catch (e: any) { if (!/duplicate column|exists/i.test(String(e?.message))) throw e; } }
     })().catch((e) => { global.__csMigrated = undefined; throw e; });
   }
   return global.__csMigrated;

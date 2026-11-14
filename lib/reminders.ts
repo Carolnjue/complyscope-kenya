@@ -1,16 +1,20 @@
 import 'server-only';
 import { q, exec, one } from './db';
 import { loadWorkspace, evaluateWorkspace } from './business';
-import { sendEmail, emailLayout, button, appUrl, sendSms, integrationStatus, flushOutbox } from './integrations';
+import { reconcileMpesa } from './payments';
+import { billingSettings, planState } from './billing';
+import { sendEmail, emailLayout, button, appUrl, sendSms, integrationStatus, flushOutbox, escHtml } from './integrations';
 import CS from './engine';
 
 const NOTIFY_DAYS = [14, 7, 1, 0, -1, -7];
 
 export async function runReminders(today = CS.todayKE()) {
-  const st = integrationStatus();
-  const businesses = await q<any>('SELECT id FROM businesses WHERE deleted_at IS NULL');
+  const st = (await integrationStatus());
+  const businesses = await q<any>('SELECT id, plan, plan_expires_at FROM businesses WHERE deleted_at IS NULL');
+  const bs = await billingSettings();
   let emails = 0, sms = 0, items = 0;
   for (const b of businesses) {
+    if (!planState(b, bs).active) continue; // ended plans get the renewal notice instead
     const ws = await loadWorkspace(b.id);
     if (!ws) continue;
     const res = evaluateWorkspace(ws, today);
@@ -37,7 +41,32 @@ export async function runReminders(today = CS.todayKE()) {
     }
     if (st.email || st.sms) for (const a of fresh) await exec('INSERT IGNORE INTO reminders_sent (business_id, inst_id, period, days_before, channel) VALUES (?,?,?,?,"email")', [b.id, a.r.id, a.period, a.days]);
   }
+  const paymentsConfirmed = await reconcileMpesa().catch(() => 0);
+  const planNotices = await planReminders().catch(() => 0);
   const flushed = await flushOutbox();
-  await exec('INSERT INTO settings (k, v) VALUES ("last_cron_run", ?) ON DUPLICATE KEY UPDATE v = VALUES(v)', [new Date().toISOString() + ` · ${items} items, ${emails} emails, ${sms} SMS, ${flushed} retried`]);
+  await exec('INSERT INTO settings (k, v) VALUES ("last_cron_run", ?) ON DUPLICATE KEY UPDATE v = VALUES(v)', [new Date().toISOString() + ` · ${items} items, ${emails} emails, ${sms} SMS, ${flushed} retried, ${paymentsConfirmed} payments confirmed, ${planNotices} plan notices`]);
   return { items, emails, sms, flushed };
+}
+
+
+/** In paid mode, tells owners 3 days before and on the day their plan or trial ends (once each). */
+async function planReminders() {
+  const s = await billingSettings();
+  if (s.mode !== 'paid') return 0;
+  const rows = await q<any>(`SELECT b.id, b.name, b.plan, DATE(b.plan_expires_at) AS exp, DATEDIFF(DATE(b.plan_expires_at), CURDATE()) AS days
+    FROM businesses b WHERE b.deleted_at IS NULL AND b.plan_expires_at IS NOT NULL AND DATEDIFF(DATE(b.plan_expires_at), CURDATE()) IN (3, 0)`);
+  let n = 0;
+  for (const b of rows) {
+    const done = await q<any>('SELECT 1 FROM reminders_sent WHERE business_id = ? AND inst_id = "plan" AND period = ? AND days_before = ? AND channel = "email" LIMIT 1', [b.id, String(b.exp), b.days]);
+    if (done.length) continue;
+    const owners = await q<any>('SELECT u.email, u.name FROM memberships m JOIN users u ON u.id = m.user_id WHERE m.business_id = ? AND m.role = "owner" AND u.is_disabled = 0', [b.id]);
+    const what = b.plan === 'trial' ? 'free trial' : 'plan';
+    const subject = b.days === 0 ? `Your ComplyScope ${what} for ${b.name} ends today` : `Your ComplyScope ${what} for ${b.name} ends in 3 days`;
+    for (const o of owners) {
+      await sendEmail(o.email, subject, emailLayout(subject, `<p>Hi ${escHtml(String(o.name).split(' ')[0])},</p><p>To keep recording filings and getting reminders for <b>${escHtml(b.name)}</b>, renew on the Billing tab. Your records stay safe either way, and you can always view and export them.</p>` + button(appUrl() + '/app/b/' + b.id + '#billing', 'Renew now')));
+      n++;
+    }
+    await exec('INSERT IGNORE INTO reminders_sent (business_id, inst_id, period, days_before, channel) VALUES (?,?,?,?,?)', [b.id, 'plan', String(b.exp), b.days, 'email']);
+  }
+  return n;
 }

@@ -1,5 +1,6 @@
 import 'server-only';
 import crypto from 'crypto';
+import { billingSettings } from './billing';
 import { q, one, exec, asJson } from './db';
 import CS from './engine';
 
@@ -50,8 +51,10 @@ export function cleanProfile(p: any) {
 
 export async function createBusiness(userId: number, profile: any, trackFrom: string) {
   const p = cleanProfile(profile);
-  const r = await exec('INSERT INTO businesses (owner_id, name, profile, track_from, calendar_token) VALUES (?,?,?,?,?)',
-    [userId, p.name, JSON.stringify(p), trackFrom, crypto.randomBytes(16).toString('hex')]);
+  const bs = await billingSettings();
+  const trial = bs.mode === 'paid';
+  const r = await exec('INSERT INTO businesses (owner_id, name, profile, track_from, calendar_token, plan, plan_expires_at) VALUES (?,?,?,?,?,?,' + (trial ? 'DATE_ADD(NOW(), INTERVAL ? DAY)' : 'NULL') + ')',
+    trial ? [userId, p.name, JSON.stringify(p), trackFrom, crypto.randomBytes(16).toString('hex'), 'trial', bs.trialDays] : [userId, p.name, JSON.stringify(p), trackFrom, crypto.randomBytes(16).toString('hex'), 'pilot']);
   await exec('INSERT INTO memberships (business_id, user_id, role) VALUES (?,?,?)', [r.insertId, userId, 'owner']);
   return r.insertId;
 }

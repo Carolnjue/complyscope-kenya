@@ -3,12 +3,14 @@ import { loadWorkspace } from '@/lib/business';
 import { exec } from '@/lib/db';
 import { audit } from '@/lib/auth';
 import { integrationStatus, appUrl } from '@/lib/integrations';
+import { billingSettings, planState } from '@/lib/billing';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const a = await needBusiness((await params).id); if ('res' in a) return a.res;
   const ws = await loadWorkspace(a.business.id);
-  const st = integrationStatus();
-  return ok({ ws, role: a.role, me: { id: a.user.id, name: a.user.name, email: a.user.email }, integrations: { email: st.email, sms: st.sms, mpesa: st.mpesa }, calendarUrl: appUrl() + '/api/calendar/' + ws!.calendarToken });
+  const st = (await integrationStatus());
+  const plan = planState(a.business, await billingSettings());
+  return ok({ ws, role: a.role, plan, me: { id: a.user.id, name: a.user.name, email: a.user.email }, integrations: { email: st.email, sms: st.sms, mpesa: st.mpesa }, calendarUrl: appUrl() + '/api/calendar/' + ws!.calendarToken });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -23,7 +23,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const link = appUrl() + '/invite?token=' + t;
   const sent = await sendEmail(email, `${a.user.name} invited you to ${a.business.name} on ComplyScope Kenya`, emailLayout('You have been invited', `<p>${a.user.name.replace(/</g, '')} invited you to help manage compliance for <b>${a.business.name.replace(/</g, '')}</b> as ${role === 'viewer' ? 'a viewer' : 'an ' + role}.</p>${button(link, 'Accept invitation')}<p style="font-size:13px;color:#64748b">This invitation expires in 7 days.</p>`));
   await audit(a.user.id, a.business.id, 'member_invited', email + ' ' + role);
-  return ok({ sent, link: integrationStatus().email ? null : link });
+  return ok({ sent, link: (await integrationStatus()).email ? null : link });
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -1,19 +1,15 @@
 import 'server-only';
 import nodemailer from 'nodemailer';
 import { exec, one, q } from './db';
+import { integration } from './config';
 
+export function escHtml(v: any) { return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as any)[c]); }
 export function appUrl() { return (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, ''); }
 
-// ---------- Integration status (each one stays "pending" until its settings exist) ----------
-export function integrationStatus() {
-  const e = process.env;
-  return {
-    email: !!(e.SMTP_HOST && e.SMTP_USER && e.SMTP_PASS),
-    mpesa: !!(e.MPESA_CONSUMER_KEY && e.MPESA_CONSUMER_SECRET && e.MPESA_SHORTCODE && e.MPESA_PASSKEY),
-    mpesaEnv: e.MPESA_ENV === 'production' ? 'production' : 'sandbox',
-    sms: !!(e.AT_USERNAME && e.AT_API_KEY),
-    cron: true,
-  };
+// ---------- Integration status (each one stays "pending" until it is configured and switched on in the admin console) ----------
+export async function integrationStatus() {
+  const [email, mpesa, sms, manual] = await Promise.all([integration('email'), integration('mpesa'), integration('sms'), integration('manual')]);
+  return { email: email.on, mpesa: mpesa.on, mpesaEnv: mpesa.env === 'production' ? 'production' : 'sandbox', sms: sms.on, manual: manual.on, manualInstructions: manual.on ? manual.instructions : '', cron: true };
 }
 
 export async function getSetting(k: string, fallback = ''): Promise<string> {
@@ -25,12 +21,14 @@ export async function setSetting(k: string, v: string) {
 }
 
 // ---------- Email ----------
-let transport: nodemailer.Transporter | null = null;
-function mailer() {
-  if (!integrationStatus().email) return null;
-  if (!transport) {
-    const port = Number(process.env.SMTP_PORT || 465);
-    transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+let transport: { sig: string; t: nodemailer.Transporter; from: string } | null = null;
+async function mailer() {
+  const c = await integration('email');
+  if (!c.on) return null;
+  const sig = [c.host, c.port, c.user, c.pass].join('|');
+  if (!transport || transport.sig !== sig) {
+    const port = Number(c.port || 465);
+    transport = { sig, from: c.from || c.user, t: nodemailer.createTransport({ host: c.host, port, secure: port === 465, auth: { user: c.user, pass: c.pass }, connectionTimeout: 15000 }) };
   }
   return transport;
 }
@@ -52,10 +50,10 @@ export function button(href: string, label: string) {
 /** Queues an email and sends it right away when SMTP is configured. Returns true when sent. */
 export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   const r = await exec('INSERT INTO email_outbox (to_email, subject, html, status) VALUES (?,?,?,?)', [to, subject, html, 'queued']);
-  const t = mailer();
-  if (!t) return false;
+  const m = await mailer();
+  if (!m) return false;
   try {
-    await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, html });
+    await m.t.sendMail({ from: m.from, to, subject, html });
     await exec('UPDATE email_outbox SET status = "sent", sent_at = NOW() WHERE id = ?', [r.insertId]);
     return true;
   } catch (e: any) {
@@ -66,12 +64,12 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 
 /** Retries queued and failed emails (called by the cron job). */
 export async function flushOutbox(limit = 50) {
-  const t = mailer();
-  if (!t) return 0;
+  const mm = await mailer();
+  if (!mm) return 0;
   const rows = await q<any>('SELECT * FROM email_outbox WHERE status IN ("queued","failed") AND created_at > (NOW() - INTERVAL 3 DAY) ORDER BY id LIMIT ?', [limit]);
   let n = 0;
   for (const m of rows) {
-    try { await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to: m.to_email, subject: m.subject, html: m.html }); await exec('UPDATE email_outbox SET status="sent", sent_at=NOW(), error=NULL WHERE id=?', [m.id]); n++; }
+    try { await mm.t.sendMail({ from: mm.from, to: m.to_email, subject: m.subject, html: m.html }); await exec('UPDATE email_outbox SET status="sent", sent_at=NOW(), error=NULL WHERE id=?', [m.id]); n++; }
     catch (e: any) { await exec('UPDATE email_outbox SET status="failed", error=? WHERE id=?', [String(e?.message || e).slice(0, 250), m.id]); }
   }
   return n;
@@ -87,14 +85,34 @@ export function normPhone(p: string | null | undefined): string | null {
   return /^254[17]\d{8}$/.test(s) ? s : null;
 }
 export async function sendSms(phone: string, message: string): Promise<boolean> {
-  const st = integrationStatus();
+  const c = await integration('sms');
   const to = normPhone(phone);
-  if (!st.sms || !to) return false;
-  const body = new URLSearchParams({ username: process.env.AT_USERNAME!, to: '+' + to, message });
-  if (process.env.AT_SENDER_ID) body.set('from', process.env.AT_SENDER_ID);
-  const host = process.env.AT_USERNAME === 'sandbox' ? 'https://api.sandbox.africastalking.com' : 'https://api.africastalking.com';
+  if (!c.on || !to) return false;
+  const body = new URLSearchParams({ username: c.username, to: '+' + to, message });
+  if (c.senderId) body.set('from', c.senderId);
+  const host = c.username === 'sandbox' ? 'https://api.sandbox.africastalking.com' : 'https://api.africastalking.com';
   try {
-    const r = await fetch(host + '/version1/messaging', { method: 'POST', headers: { apiKey: process.env.AT_API_KEY!, Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body });
-    return r.ok;
+    const r = await fetch(host + '/version1/messaging', { method: 'POST', headers: { apiKey: c.apiKey, Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+    const j: any = await r.json().catch(() => ({}));
+    const rec = j?.SMSMessageData?.Recipients?.[0];
+    return r.ok && (!rec || /success|sent/i.test(rec.status || ''));
   } catch { return false; }
+}
+
+/** Checks a configuration by actually talking to the service. Returns a short human message. */
+export async function testIntegration(name: 'email' | 'mpesa' | 'sms', to: { email: string; phone?: string | null }): Promise<{ ok: boolean; message: string }> {
+  if (name === 'email') {
+    const m = await mailer(); if (!m) return { ok: false, message: 'Email is not switched on, or a required field is empty.' };
+    try { await m.t.verify(); } catch (e: any) { return { ok: false, message: 'Could not log in to the mail server: ' + String(e?.message || e).slice(0, 160) }; }
+    const sent = await sendEmail(to.email, 'ComplyScope test email', emailLayout('Email is working', '<p>This test confirms that ComplyScope can send email from your server.</p>'));
+    return sent ? { ok: true, message: 'Test email sent to ' + to.email + '.' } : { ok: false, message: 'Logged in, but sending failed. See the email outbox for the error.' };
+  }
+  if (name === 'mpesa') {
+    const { mpesaToken } = await import('./mpesa');
+    try { await mpesaToken(); return { ok: true, message: 'Safaricom accepted the consumer key and secret.' }; }
+    catch (e: any) { return { ok: false, message: String(e?.message || e).slice(0, 200) }; }
+  }
+  if (!to.phone) return { ok: false, message: 'Add a mobile number to your account first, then test again.' };
+  const ok = await sendSms(to.phone, 'ComplyScope test: SMS reminders are working.');
+  return ok ? { ok: true, message: 'Test SMS sent to ' + to.phone + '.' } : { ok: false, message: "Africa's Talking did not accept the message. Check the username, API key, sender ID and credit." };
 }

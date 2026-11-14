@@ -17,7 +17,7 @@ export function mountWorkspace(rootEl, BID) {
   function dueText(r) {
     if (r.status === 'done') return 'Recorded';
     if (r.status === 'na') return 'Excluded';
-    if (r.next == null) return r.status === 'missing' ? 'Add a record' : 'Add a date';
+    if (r.next == null) return r.status === 'missing' ? (CAN_EDIT ? 'Add a record' : 'Not recorded') : (CAN_EDIT ? 'Add a date' : 'No date yet');
     if (r.days < 0) return (-r.days) + (r.days === -1 ? ' day' : ' days') + ' overdue';
     if (r.days === 0) return 'Due today';
     return 'Due ' + CS.fmt(r.next) + ' · ' + r.days + (r.days === 1 ? ' day' : ' days');
@@ -100,7 +100,7 @@ export function mountWorkspace(rootEl, BID) {
   function reload() {
     return api('/api/b/' + BID).then(function (j) {
       if (!j.ok) { $('#appMain', rootEl).innerHTML = '<div class="empty">' + esc(j.error || 'Could not load this business.') + ' <a href="/app">Back to my businesses</a></div>'; return; }
-      ws = j.ws; META = j; CAN_EDIT = j.role === 'owner' || j.role === 'editor'; IS_OWNER = j.role === 'owner';
+      ws = j.ws; META = j; var planOn = !j.plan || j.plan.active; CAN_EDIT = (j.role === 'owner' || j.role === 'editor') && planOn; IS_OWNER = j.role === 'owner';
       touched = {}; pendingFilings = [];
       route();
     });
@@ -441,20 +441,42 @@ export function mountWorkspace(rootEl, BID) {
     main.innerHTML = '<div class="panel panel-pad"><p class="muted small">Loading billing…</p></div>';
     api('/api/b/' + BID + '/billing').then(function (j) {
       if (!j.ok) { main.innerHTML = '<div class="empty">' + esc(j.error) + '</div>'; return; }
-      var plan = j.plans[j.plan] || j.plans.pilot;
-      var html = '<div class="panel panel-pad"><h3 style="font-size:20px">Plan and billing</h3><p style="margin-top:8px">Current plan: <b>' + esc(plan.name) + '</b>' + (j.planExpiresAt ? ' · paid until ' + esc(String(j.planExpiresAt).slice(0, 10)) : '') + '</p><p class="small muted">' + esc(plan.note) + '</p></div>';
-      if (!j.mpesa) html += '<div class="banner"><div><b>Free pilot.</b> Every feature is open while ComplyScope is in its pilot. M-Pesa payments will appear here when paid plans start; nothing is charged until then.</div></div>';
-      else if (IS_OWNER) html += '<form class="panel panel-pad" id="payForm" novalidate style="display:flex;flex-direction:column;gap:12px"><h3 style="font-size:18px">Pay with M-Pesa</h3><div class="fgrid"><label class="f" for="payPlan">Plan<select id="payPlan"><option value="starter">Starter · KSh 4,999 / month</option><option value="growth">Growth · KSh 14,999 / month</option></select></label><label class="f" for="payPhone">M-Pesa number<input type="tel" id="payPhone" placeholder="0712 345 678" autocomplete="tel"></label></div><p class="small muted">You will get an M-Pesa prompt on your phone. Enter your PIN to pay for 30 days.</p><p class="err hidden" id="payErr" role="alert"></p><div><button class="btn primary" type="submit">Send M-Pesa prompt</button></div></form>';
-      if (j.payments.length) html += '<div class="panel panel-pad"><h3 style="font-size:18px">Payments</h3><div class="tbl-wrap"><table class="t"><thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Phone</th><th>Status</th><th>Receipt</th></tr></thead><tbody>' + j.payments.map(function (p) { return '<tr><td class="num small">' + esc(String(p.created_at).slice(0, 16)) + '</td><td>' + esc(p.plan) + '</td><td class="num">KSh ' + Number(p.amount).toLocaleString('en-KE') + '</td><td class="small">' + esc(p.phone) + '</td><td>' + esc(p.status) + '</td><td class="small">' + esc(p.receipt || '–') + '</td></tr>'; }).join('') + '</tbody></table></div></div>';
+      var st = j.state, ksh = function (n) { return 'KSh ' + Number(n).toLocaleString('en-KE'); };
+      var html = '<div class="panel panel-pad"><h3 style="font-size:20px">Plan and billing</h3><p style="margin-top:8px">Current plan: <b>' + esc(st.label) + '</b>' + (st.expires ? (st.active ? ' · until ' : ' · ended ') + esc(CS.fmt(CS.fromIso(st.expires))) : '') + '</p>' + (j.mode === 'pilot' ? '<p class="small muted">ComplyScope is in its free pilot: every feature is open and nothing is charged.</p>' : '') + '</div>';
+      if (j.mode === 'paid') {
+        var plans = ['starter', 'growth'];
+        html += '<div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">' + plans.map(function (k) { var p = j.plans[k]; return '<div class="panel panel-pad"><h4 style="font-size:17px">' + esc(p.name) + '</h4><p style="font-size:26px;font-weight:800;margin:6px 0">' + ksh(p.price) + '<span class="small muted" style="font-weight:500"> / month</span></p><p class="small muted">' + esc(p.note) + (j.annualMonths < 12 ? ' · a year costs ' + j.annualMonths + ' months' : '') + '</p></div>'; }).join('') + '</div>';
+        var methods = (j.methods.mpesa ? 1 : 0) + (j.methods.manual ? 1 : 0);
+        if (!IS_OWNER) html += '<div class="banner"><div class="small">Only the business owner can pay for a plan.</div></div>';
+        else if (!methods) html += '<div class="banner"><div class="small">Online payment is being set up. Contact us to activate your plan.</div></div>';
+        else {
+          var monthOpts = function (k) { return j.quotes[k].map(function (q) { return '<option value="' + k + '|' + q.months + '">' + esc(j.plans[k].name) + ' · ' + (q.months === 12 ? '1 year' : q.months + ' month' + (q.months > 1 ? 's' : '')) + ' · ' + ksh(q.amount) + '</option>'; }).join(''); };
+          html += '<form class="panel panel-pad" id="payForm" novalidate style="display:flex;flex-direction:column;gap:12px"><h3 style="font-size:18px">Pay for a plan</h3>' +
+            '<label class="f" for="payWhat">Plan and period<select id="payWhat">' + monthOpts('starter') + monthOpts('growth') + '</select></label>' +
+            (methods > 1 ? '<fieldset style="border:0;padding:0;margin:0;display:flex;gap:16px;flex-wrap:wrap"><legend class="small" style="font-weight:600;margin-bottom:6px">How do you want to pay?</legend><label style="display:flex;gap:6px;align-items:center"><input type="radio" name="payM" value="mpesa" checked> M-Pesa prompt on my phone</label><label style="display:flex;gap:6px;align-items:center"><input type="radio" name="payM" value="manual"> I will pay and enter the code</label></fieldset>' : '<input type="hidden" name="payM" value="' + (j.methods.mpesa ? 'mpesa' : 'manual') + '">') +
+            '<div id="payMpesa" class="fgrid"><label class="f" for="payPhone">M-Pesa number<input type="tel" id="payPhone" placeholder="0712 345 678" autocomplete="tel"></label></div>' +
+            '<div id="payManual" class="hidden" style="display:flex;flex-direction:column;gap:10px"><div class="banner"><div class="small" style="white-space:pre-line">' + esc(j.methods.manualInstructions || '') + '</div></div><label class="f" for="payRef">M-Pesa or bank transaction code<input type="text" id="payRef" placeholder="e.g. SKL4ABC123" autocomplete="off"></label></div>' +
+            '<p class="err hidden" id="payErr" role="alert"></p><div><button class="btn primary" type="submit">Pay</button></div></form>';
+        }
+      }
+      if (j.payments.length) html += '<div class="panel panel-pad"><h3 style="font-size:18px">Payments</h3><div class="tbl-wrap"><table class="t"><thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Method</th><th>Status</th><th>Receipt</th></tr></thead><tbody>' + j.payments.map(function (p) { var label = { paid: 'Paid', pending: 'Waiting for M-Pesa', review: 'Being confirmed', failed: 'Not completed', rejected: 'Not confirmed', underpaid: 'Underpaid' }[p.status] || p.status; return '<tr><td class="num small">' + esc(String(p.created_at).slice(0, 16)) + '</td><td>' + esc(p.plan) + ' · ' + esc(p.months) + ' mo</td><td class="num">' + ksh(p.amount) + '</td><td class="small">' + (p.method === 'manual' ? 'Code ' + esc(p.reference || '') : 'M-Pesa ' + esc(p.phone)) + '</td><td>' + esc(label) + '</td><td class="small">' + (p.status === 'paid' ? '<a href="/app/b/' + BID + '/receipt/' + p.id + '" target="_blank" rel="noopener">View receipt</a>' : '–') + '</td></tr>'; }).join('') + '</tbody></table></div></div>';
       main.innerHTML = html;
+      if (META.plan && !META.plan.active) main.insertAdjacentHTML('afterbegin', '<div class="banner warn"><div><b>' + esc(META.plan.label) + '.</b> <span class="small">' + esc(META.plan.message) + '</span></div></div>');
       var f = $('#payForm', main);
-      if (f) f.addEventListener('submit', function (e) {
+      if (!f) return;
+      var method = function () { var r = f.querySelector('[name=payM]:checked') || f.querySelector('[name=payM]'); return r.value; };
+      var sync = function () { var m = method(); $('#payMpesa', main).classList.toggle('hidden', m !== 'mpesa'); $('#payManual', main).classList.toggle('hidden', m !== 'manual'); };
+      $$('[name=payM]', f).forEach(function (r) { r.addEventListener('change', sync); }); sync();
+      f.addEventListener('submit', function (e) {
         e.preventDefault();
-        var b = f.querySelector('button'); b.disabled = true; b.textContent = 'Sending prompt…';
-        api('/api/b/' + BID + '/billing', 'POST', { plan: $('#payPlan', main).value, phone: $('#payPhone', main).value }).then(function (r) {
-          b.disabled = false; b.textContent = 'Send M-Pesa prompt';
-          if (!r.ok) { var er = $('#payErr', main); er.textContent = r.error; er.classList.remove('hidden'); return; }
-          toast('Check your phone and enter your M-Pesa PIN'); setTimeout(function () { viewBilling(main); }, 15000);
+        var parts = $('#payWhat', main).value.split('|'), btn = f.querySelector('button[type=submit]'), er = $('#payErr', main);
+        er.classList.add('hidden'); btn.disabled = true; btn.textContent = 'Working…';
+        api('/api/b/' + BID + '/billing', 'POST', { plan: parts[0], months: Number(parts[1]), method: method(), phone: $('#payPhone', main).value, reference: $('#payRef', main) ? $('#payRef', main).value : '' }).then(function (r) {
+          btn.disabled = false; btn.textContent = 'Pay';
+          if (!r.ok) { er.textContent = r.error; er.classList.remove('hidden'); return; }
+          if (r.review) { toast('Thanks. We will confirm your payment shortly.'); viewBilling(main); return; }
+          toast('Check your phone and enter your M-Pesa PIN');
+          setTimeout(function () { reload(); }, 20000);
         });
       });
     });
@@ -492,8 +514,12 @@ export function mountWorkspace(rootEl, BID) {
     $('#wsName', rootEl).textContent = ws.profile ? ws.profile.name : 'Business';
     $('#roleBadge', rootEl).textContent = { owner: 'Owner', editor: 'Editor', viewer: 'View only' }[META.role] || '';
     var old = $('#appMain', rootEl), main = old.cloneNode(false); old.parentNode.replaceChild(main, old);
-    if (h === 'profile' && !CAN_EDIT) { main.innerHTML = '<div class="empty">Only owners and editors can change the business profile.</div>'; }
-    else ({ overview: viewOverview, obligations: viewObligations, deadlines: viewDeadlines, filings: viewFilings, documents: viewDocuments, profile: viewProfile, team: viewTeam, billing: viewBilling, dossier: viewDossier })[h](main);
+    var pl = META.plan;
+    var planBanner = '';
+    if (pl && !pl.active) planBanner = '<div class="banner warn"><div><b>' + esc(pl.label) + '.</b> <span class="small">' + esc(pl.message) + '</span></div>' + (IS_OWNER && h !== 'billing' ? '<a class="btn sm primary" href="#billing">Renew</a>' : '') + '</div>';
+    else if (pl && pl.plan === 'trial' && pl.expires) { var dl = Math.max(0, Math.round((CS.fromIso(pl.expires) - TODAY) / 86400000)); planBanner = '<div class="banner"><div><b>Free trial:</b> <span class="small">' + dl + ' day' + (dl === 1 ? '' : 's') + ' left (until ' + esc(CS.fmt(CS.fromIso(pl.expires))) + ').</span></div>' + (IS_OWNER && h !== 'billing' ? '<a class="btn sm" href="#billing">Choose a plan</a>' : '') + '</div>'; }
+    if (h === 'profile' && !CAN_EDIT) { main.innerHTML = planBanner + (pl && !pl.active ? '' : '<div class="empty">Only owners and editors can change the business profile.</div>'); if (pl && !pl.active) main.insertAdjacentHTML('beforeend', '<div class="empty">The profile can be changed again once the plan is renewed.</div>'); }
+    else { ({ overview: viewOverview, obligations: viewObligations, deadlines: viewDeadlines, filings: viewFilings, documents: viewDocuments, profile: viewProfile, team: viewTeam, billing: viewBilling, dossier: viewDossier })[h](main); if (planBanner) main.insertAdjacentHTML('afterbegin', planBanner); }
     if (h === 'deadlines') { var d = document.createElement('div'); d.innerHTML = calendarPanel(); main.appendChild(d.firstChild); var c = $('#calCopy', main); if (c) c.addEventListener('click', function () { copyText($('#calUrl', main).value); }); }
     if (!CAN_EDIT) $$('[data-del]', main).forEach(function (b) { b.remove(); });
     if (lastView !== h && lastView !== null) window.scrollTo(0, 0);
