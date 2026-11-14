@@ -388,6 +388,7 @@ export function mountWorkspace(rootEl, BID) {
       cb('pClinic', 'We run a clinic, hospital or other health facility', p.healthFacility) +
       cb('pLiquor', 'We sell alcohol', p.liquor) +
       cb('pFees', 'We pay consultants, professionals or contractors', p.paysFees, 'Fees of more than KSh 24,000 a month to one person') +
+      cb('pRent', 'We earn rent from residential property', p.residentialRent, 'KSh 288,000 to KSh 15 million a year') +
       '</div></fieldset>' +
       '<fieldset><legend>Locations</legend><p class="small muted" style="margin-top:-6px">Add the head office and every branch. Each needs its own county permit.</p><div id="pLocs" style="display:flex;flex-direction:column;gap:10px"></div><div><button type="button" class="btn sm" id="addLoc">Add a location</button></div></fieldset>' +
       '<p class="err hidden" id="pErr" role="alert"></p>' +
@@ -426,7 +427,7 @@ export function mountWorkspace(rootEl, BID) {
       PENDING_PROFILE = {
         name: name, structure: $('#pStruct', main).value, stage: $('#pStage', main).value, incDate: $('#pInc', main).value, fyEnd: +$('#pFy', main).value,
         sectors: sectors, activities: $('#pAct', main).value.trim().slice(0, 400), employees: +empRaw, turnover: $('#pTurn', main).value, vat: $('#pVat', main).value, tot: $('#pTot', main).value,
-        personalData: $('#pData', main).checked, foreignStaff: $('#pForeign', main).checked, weighing: $('#pWeigh', main).checked, fumigation: $('#pFum', main).checked, wasteTransport: $('#pWaste', main).checked, cctv: $('#pCctv', main).checked, pharmacy: $('#pPharm', main).checked, healthFacility: $('#pClinic', main).checked, liquor: $('#pLiquor', main).checked, paysFees: $('#pFees', main).checked,
+        personalData: $('#pData', main).checked, foreignStaff: $('#pForeign', main).checked, weighing: $('#pWeigh', main).checked, fumigation: $('#pFum', main).checked, wasteTransport: $('#pWaste', main).checked, cctv: $('#pCctv', main).checked, pharmacy: $('#pPharm', main).checked, healthFacility: $('#pClinic', main).checked, liquor: $('#pLiquor', main).checked, paysFees: $('#pFees', main).checked, residentialRent: $('#pRent', main).checked,
         kraPin: $('#pPin', main).value.trim(), regNo: $('#pReg', main).value.trim(),
         locations: locs.map(function (l) { return { id: l.id, name: l.name.slice(0, 80), county: l.county, signage: l.signage }; })
       };
