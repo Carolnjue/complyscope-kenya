@@ -42,7 +42,7 @@ export function cleanProfile(p: any) {
     name: str(p.name, 150), structure: CS.STRUCTURES[p.structure] ? p.structure : 'company', stage: p.stage === 'starting' ? 'starting' : 'operating',
     incDate: /^\d{4}-\d{2}-\d{2}$/.test(p.incDate || '') ? p.incDate : '', fyEnd: Math.min(12, Math.max(1, Number(p.fyEnd) || 12)),
     sectors, activities: str(p.activities, 400), employees: Math.max(0, Math.min(100000, Math.floor(Number(p.employees) || 0))),
-    turnover: CS.TURNOVER[p.turnover] ? p.turnover : 'unknown', vat: ['yes', 'no', 'unknown'].includes(p.vat) ? p.vat : 'unknown',
+    turnover: CS.TURNOVER[p.turnover] ? p.turnover : 'unknown', vat: ['yes', 'no', 'unknown'].includes(p.vat) ? p.vat : 'unknown', tot: ['yes', 'no'].includes(p.tot) ? p.tot : 'auto',
     personalData: bool(p.personalData), foreignStaff: bool(p.foreignStaff), weighing: bool(p.weighing), fumigation: bool(p.fumigation), wasteTransport: bool(p.wasteTransport), cctv: bool(p.cctv), pharmacy: bool(p.pharmacy), healthFacility: bool(p.healthFacility), liquor: bool(p.liquor),
     kraPin: str(p.kraPin, 20).toUpperCase(), regNo: str(p.regNo, 40).toUpperCase(),
     locations: locs.length ? locs : [{ id: 'l1', name: 'Main premises', county: 'Nairobi City', signage: false }],

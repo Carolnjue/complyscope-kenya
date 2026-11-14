@@ -372,6 +372,7 @@ export function mountWorkspace(rootEl, BID) {
       '<label class="f" for="pEmp">Number of employees<small>Include casual staff on payroll; enter 0 if none</small><input type="number" id="pEmp" min="0" step="1" inputmode="numeric" value="' + esc(p.employees) + '"></label>' +
       '<label class="f" for="pTurn">Annual turnover<select id="pTurn">' + opt(CS.TURNOVER, p.turnover) + '</select></label>' +
       '<label class="f" for="pVat">Registered for VAT?<select id="pVat"><option value="yes"' + (p.vat === 'yes' ? ' selected' : '') + '>Yes</option><option value="no"' + (p.vat === 'no' ? ' selected' : '') + '>No</option><option value="unknown"' + (p.vat === 'unknown' ? ' selected' : '') + '>Not sure</option></select></label>' +
+      '<label class="f" for="pTot">Pays Turnover Tax (TOT)?<small>TOT (1.5% of sales) is for turnover above KSh 1M up to 25M, unless you chose normal income tax</small><select id="pTot"><option value="auto"' + (!p.tot || p.tot === 'auto' ? ' selected' : '') + '>Work it out from turnover</option><option value="yes"' + (p.tot === 'yes' ? ' selected' : '') + '>Yes, we pay TOT</option><option value="no"' + (p.tot === 'no' ? ' selected' : '') + '>No, we pay normal income tax</option></select></label>' +
       '</div></fieldset>' +
       '<fieldset><legend>Activities that bring extra rules</legend><div class="checks">' +
       cb('pData', 'We keep personal data about customers, pupils, patients or staff', p.personalData, 'Customer lists, CCTV, client records') +
@@ -420,7 +421,7 @@ export function mountWorkspace(rootEl, BID) {
       var track = $('#pTrack', main).value;
       PENDING_PROFILE = {
         name: name, structure: $('#pStruct', main).value, stage: $('#pStage', main).value, incDate: $('#pInc', main).value, fyEnd: +$('#pFy', main).value,
-        sectors: sectors, activities: $('#pAct', main).value.trim().slice(0, 400), employees: +empRaw, turnover: $('#pTurn', main).value, vat: $('#pVat', main).value,
+        sectors: sectors, activities: $('#pAct', main).value.trim().slice(0, 400), employees: +empRaw, turnover: $('#pTurn', main).value, vat: $('#pVat', main).value, tot: $('#pTot', main).value,
         personalData: $('#pData', main).checked, foreignStaff: $('#pForeign', main).checked, weighing: $('#pWeigh', main).checked, fumigation: $('#pFum', main).checked, wasteTransport: $('#pWaste', main).checked, cctv: $('#pCctv', main).checked, pharmacy: $('#pPharm', main).checked, healthFacility: $('#pClinic', main).checked, liquor: $('#pLiquor', main).checked,
         kraPin: $('#pPin', main).value.trim(), regNo: $('#pReg', main).value.trim(),
         locations: locs.map(function (l) { return { id: l.id, name: l.name.slice(0, 80), county: l.county, signage: l.signage }; })
