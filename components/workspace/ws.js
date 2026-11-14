@@ -92,7 +92,7 @@ export function mountWorkspace(rootEl, BID) {
       (ob.penalty ? '<dt>If late</dt><dd>' + esc(ob.penalty) + '</dd>' : '') +
       (r.inst.loc && ob.group === 'County' ? '<dt>County notes</dt><dd>' + esc(CS.countyInfo(r.inst.loc.county).note) + ' Pay via ' + esc(CS.countyInfo(r.inst.loc.county).portal) + '. <a href="/counties#' + esc(CS.countyInfo(r.inst.loc.county).slug || '') + '">Full county guide</a></dd>' : '') +
       '<dt>Status</dt><dd>' + pill(r.status) + ' <span class="small">' + esc(r.note) + '</span></dd>' +
-      (r.next != null ? '<dt>Next date</dt><dd class="num">' + CS.fmt(r.next) + ' (' + esc(dueText(r)) + ')</dd>' : '') +
+      (r.next != null ? '<dt>Next date</dt><dd class="num">' + CS.fmt(r.next) + ' · ' + (r.days < 0 ? (-r.days) + (r.days === -1 ? ' day' : ' days') + ' overdue' : r.days === 0 ? 'today' : 'in ' + r.days + (r.days === 1 ? ' day' : ' days')) + '</dd>' : '') +
       (src ? '<dt>Source</dt><dd>' + (src.url ? '<a href="' + esc(src.url) + '" target="_blank" rel="noopener">' + esc(src.label) + '</a>' : esc(src.label)) + '</dd>' : '') +
       '</dl>';
   }
