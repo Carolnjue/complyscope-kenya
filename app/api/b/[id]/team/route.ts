@@ -1,7 +1,7 @@
 import { ok, fail, body, needBusiness } from '@/lib/http';
 import { q, one, exec } from '@/lib/db';
 import { issueToken, normEmail, validEmail, audit } from '@/lib/auth';
-import { sendEmail, emailLayout, button, appUrl, integrationStatus } from '@/lib/integrations';
+import { sendEmail, emailLayout, button, appUrl, integrationStatus, escHtml } from '@/lib/integrations';
 
 const ROLES = ['owner', 'editor', 'viewer'];
 
@@ -21,7 +21,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (existing && await one('SELECT 1 FROM memberships WHERE business_id = ? AND user_id = ?', [a.business.id, existing.id])) return fail('That person is already on the team.');
   const t = await issueToken('invite', { email, businessId: a.business.id, role, hours: 24 * 7 });
   const link = appUrl() + '/invite?token=' + t;
-  const sent = await sendEmail(email, `${a.user.name} invited you to ${a.business.name} on ComplyScope Kenya`, emailLayout('You have been invited', `<p>${a.user.name.replace(/</g, '')} invited you to help manage compliance for <b>${a.business.name.replace(/</g, '')}</b> as ${role === 'viewer' ? 'a viewer' : 'an ' + role}.</p>${button(link, 'Accept invitation')}<p style="font-size:13px;color:#64748b">This invitation expires in 7 days.</p>`));
+  const sent = await sendEmail(email, `${a.user.name} invited you to ${a.business.name} on ComplyScope Kenya`, emailLayout('You have been invited', `<p>${escHtml(a.user.name)} invited you to help manage compliance for <b>${escHtml(a.business.name)}</b> as ${role === 'viewer' ? 'a viewer' : 'an ' + role}.</p>${button(link, 'Accept invitation')}<p style="font-size:13px;color:#64748b">This invitation expires in 7 days.</p>`));
   await audit(a.user.id, a.business.id, 'member_invited', email + ' ' + role);
   return ok({ sent, link: (await integrationStatus()).email ? null : link });
 }

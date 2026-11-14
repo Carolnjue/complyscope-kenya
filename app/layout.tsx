@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   title: { default: 'ComplyScope Kenya — never miss a filing, permit or renewal', template: '%s · ComplyScope Kenya' },
   description: 'ComplyScope Kenya maps the registrations, permits, payroll remittances and tax filings that apply to your Kenyan business in all 47 counties, works out every due date and reminds you before penalties apply.',
   icons: { icon: '/favicon.svg' },
-  openGraph: { title: 'ComplyScope Kenya', description: 'Business compliance tracking for Kenya — national and county, branch by branch.', type: 'website' },
+  openGraph: { title: 'ComplyScope Kenya', description: 'Business compliance tracking for Kenya — national and county, branch by branch.', type: 'website', siteName: 'ComplyScope Kenya', locale: 'en_KE' },
+  twitter: { card: 'summary_large_image' },
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#0d9488' };
 

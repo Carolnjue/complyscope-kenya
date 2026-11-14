@@ -96,6 +96,7 @@ export default function AdminConsole({ me, data }: any) {
           <p className="small muted">Last reminder run: {data.settings.last_cron_run}</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button className="btn sm" type="button" onClick={() => act({ action: 'run-reminders' }, false)}>Run reminders now</button>
+            <a className="btn sm" href="/api/admin/backup" download>Download data backup</a>
             <button className="btn sm" type="button" onClick={() => act({ action: 'setting', key: 'review_status', value: data.settings.review_status === 'complete' ? 'pending' : 'complete' })}>{data.settings.review_status === 'complete' ? 'Mark review as pending' : 'Mark professional review complete'}</button>
           </div>
         </div>

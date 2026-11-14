@@ -38,7 +38,7 @@ export function emailLayout(title: string, body: string) {
   <div style="max-width:560px;margin:0 auto;padding:28px 20px">
     <div style="font-weight:800;font-size:18px;margin-bottom:18px"><span style="display:inline-block;width:28px;height:28px;border-radius:8px;background:#0d9488;vertical-align:middle;margin-right:8px"></span>ComplyScope <span style="font-size:10px;color:#0d9488;letter-spacing:.1em">KENYA</span></div>
     <div style="background:#fff;border:1px solid rgba(15,23,42,.08);border-radius:14px;padding:24px">
-      <h1 style="font-size:20px;margin:0 0 12px">${title}</h1>${body}
+      <h1 style="font-size:20px;margin:0 0 12px">${escHtml(title)}</h1>${body}
     </div>
     <p style="font-size:12px;color:#64748b;margin-top:16px">ComplyScope Kenya by Pentarch Systems Solutions. Tracking and reminders only; not legal, tax or accounting advice.</p>
   </div></body></html>`;

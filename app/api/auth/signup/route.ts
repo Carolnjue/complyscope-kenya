@@ -1,7 +1,7 @@
 import { ok, fail, body } from '@/lib/http';
 import { one, exec } from '@/lib/db';
 import { hashPassword, passwordProblem, normEmail, validEmail, createSession, issueToken, isSuperadminEmail, audit, tooManyAttempts, noteAttempt } from '@/lib/auth';
-import { sendEmail, emailLayout, button, appUrl, integrationStatus, normPhone } from '@/lib/integrations';
+import { sendEmail, emailLayout, button, appUrl, integrationStatus, normPhone, escHtml } from '@/lib/integrations';
 
 export async function POST(req: Request) {
   const b = await body(req);
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   await audit(r.insertId, null, 'signup', email);
   if (emailOn) {
     const t = await issueToken('verify', { userId: r.insertId, hours: 72 });
-    await sendEmail(email, 'Confirm your ComplyScope Kenya email', emailLayout('Confirm your email', `<p>Hi ${name.replace(/</g, '')},</p><p>Confirm your email address to finish setting up your ComplyScope Kenya account.</p>${button(appUrl() + '/verify?token=' + t, 'Confirm my email')}<p style="font-size:13px;color:#64748b">This link expires in 3 days.</p>`));
+    await sendEmail(email, 'Confirm your ComplyScope Kenya email', emailLayout('Confirm your email', `<p>Hi ${escHtml(name)},</p><p>Confirm your email address to finish setting up your ComplyScope Kenya account.</p>${button(appUrl() + '/verify?token=' + t, 'Confirm my email')}<p style="font-size:13px;color:#64748b">This link expires in 3 days.</p>`));
   }
   await createSession(r.insertId);
   return ok({ verified: !emailOn });
