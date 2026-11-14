@@ -60,7 +60,7 @@ export async function createBusiness(userId: number, profile: any, trackFrom: st
 }
 
 export async function loadWorkspace(businessId: number) {
-  const b = await one<any>('SELECT id, name, profile, track_from, plan, plan_expires_at, calendar_token FROM businesses WHERE id = ?', [businessId]);
+  const b = await one<any>('SELECT id, name, profile, track_from, DATE_FORMAT(created_at, "%Y-%m-%d") AS created_on, plan, plan_expires_at, calendar_token FROM businesses WHERE id = ?', [businessId]);
   if (!b) return null;
   const recs = await q<any>('SELECT inst_id, data FROM records WHERE business_id = ?', [businessId]);
   const records: Record<string, any> = {};
@@ -69,7 +69,7 @@ export async function loadWorkspace(businessId: number) {
   const docs = await q<any>('SELECT id, inst_id, filing_id, filename, mime, size, created_at FROM documents WHERE business_id = ? ORDER BY id DESC', [businessId]);
   return {
     id: b.id, name: b.name, plan: b.plan, planExpiresAt: b.plan_expires_at, calendarToken: b.calendar_token,
-    profile: asJson(b.profile), trackFrom: String(b.track_from).slice(0, 10), records,
+    profile: asJson(b.profile), trackFrom: String(b.track_from).slice(0, 10), createdOn: b.created_on, records,
     filings: filings.map((f) => ({ fid: String(f.id), id: f.inst_id, period: f.period, date: f.filed_on, ref: f.ref, title: f.title, loc: f.loc, kind: f.kind })),
     documents: docs,
   };
@@ -77,5 +77,5 @@ export async function loadWorkspace(businessId: number) {
 
 /** Evaluate all obligations for a stored workspace with the shared engine. */
 export function evaluateWorkspace(ws: any, today?: number) {
-  return CS.evaluateAll({ profile: ws.profile, records: ws.records, filings: ws.filings, trackFrom: ws.trackFrom }, today);
+  return CS.evaluateAll({ profile: ws.profile, records: ws.records, filings: ws.filings, trackFrom: ws.trackFrom, createdOn: ws.createdOn }, today);
 }

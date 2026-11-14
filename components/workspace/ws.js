@@ -166,7 +166,7 @@ export function mountWorkspace(rootEl, BID) {
         (ob.countyValidity && !useLast ? '<div><button type="button" class="btn sm" id="aIssued">Issued today (valid 12 months)</button>' + (r.inst.loc && CS.countyInfo(r.inst.loc.county).validity === 'calendar' ? ' <button type="button" class="btn sm" id="aNextYear">Renewed for ' + (CS.parts(TODAY).y + (CS.parts(TODAY).m >= 10 ? 1 : 0)) + '</button>' : '') + '</div>' : '') +
         (ob.calendarYear && !useLast ? '<div><button type="button" class="btn sm" id="aNextYear">Renewed for ' + (CS.parts(TODAY).y + (CS.parts(TODAY).m >= 10 ? 1 : 0)) + '</button></div>' : '');
     } else {
-      var opts = r.overdue.concat(r.upcoming.slice(0, 2));
+      var opts = r.overdue.concat(r.unconfirmed || [], r.upcoming.slice(0, 2));
       if (kind === 'anniversary' && r.needs) form = '<div class="banner warn">Add your incorporation date in the business profile first.</div>';
       else if (!opts.length) form = '<div class="banner">Nothing is due in the tracking window.</div>';
       else form = '<div class="fgrid"><label class="f" for="aPer">Period<select id="aPer">' + opts.map(function (o) { return '<option value="' + esc(o.period) + '">' + esc(CS.periodLabel(o.period)) + ' · due ' + CS.fmt(o.due) + '</option>'; }).join('') + '</select></label>' +
@@ -179,7 +179,7 @@ export function mountWorkspace(rootEl, BID) {
     if (r.status !== 'na') {
       if (kind === 'once') primary = r.status === 'done' ? '<button type="button" class="btn" id="aUndo">Mark as not done</button>' : '<button type="button" class="btn primary" id="aSave">Mark as in place</button>';
       else if (kind === 'expiry') primary = '<button type="button" class="btn primary" id="aSave">Save record</button>';
-      else if (!(kind === 'anniversary' && r.needs) && (r.overdue.length || r.upcoming.length)) primary = '<button type="button" class="btn primary" id="aSave">Save filing</button>';
+      else if (!(kind === 'anniversary' && r.needs) && (r.overdue.length || (r.unconfirmed || []).length || r.upcoming.length)) primary = '<button type="button" class="btn primary" id="aSave">Save filing</button>';
     }
     if (!CAN_EDIT) { form = ''; primary = ''; }
     var naBtn = !CAN_EDIT ? '' : r.status === 'na' ? '<button type="button" class="btn primary" id="aNa">This applies to us</button>' : '<button type="button" class="btn ghost" id="aNa">Not applicable to us</button>';
