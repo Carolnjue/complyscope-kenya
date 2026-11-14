@@ -31,14 +31,14 @@ export default function LandingDemo() {
   var DINFO = {
     nairobi:{name:"Nairobi City County",permit:"Unified Business Permit (UBP)",fee:"Set by the Nairobi City County Finance Act, 2026 by activity and premises size",portal:"nairobiservices.go.ke · Nairobi Pay *647#",addons:"The UBP bundles trade licence, fire, health, food hygiene and advertising approvals according to activity and premises.",alerts:[{level:"update",text:"Nairobi UBP fees follow the Nairobi City County Finance Act, 2026. Confirm your fee band on nairobiservices.go.ke before renewing."}]},
     mombasa:{name:"Mombasa County",permit:"Single Business Permit (SBP)",fee:"Set by the Mombasa County Finance Act by business type and size",portal:"Mombasa County eServices portal (M-Pesa / card — no office visit)",addons:"Add-ons: fire certificate, public health permit, weights & measures (sector-dependent).",alerts:[{level:"warning",text:"Mombasa County SBP expires 31 Dec. Renewal via eServices portal; late renewal attracts surcharge."}]},
-    kiambu:{name:"Kiambu County",permit:"Single Business Permit (SBP)",fee:"Set by the Kiambu County Finance Act by business type and size",portal:"Kiambu County revenue office / e-services (verify current portal)",addons:"Add-ons: fire inspection, public health (food) and signage approval are charged separately.",alerts:[{level:"update",text:"Kiambu SBP fees follow the Kiambu County Finance Act; fire, food and signage approvals are billed separately."}]}
+    kiambu:{name:"Kiambu County",permit:"Single Business Permit (SBP)",fee:"Set by the Kiambu County Finance Act by business type and size",portal:"Kiambu County Revenue Authority (KCRA) · *476#",addons:"Add-ons: fire inspection, public health (food) and signage approval are charged separately.",alerts:[{level:"update",text:"Kiambu SBP fees follow the Kiambu County Finance Act; fire, food and signage approvals are billed separately."}]}
   };
   var SHARED_ALERTS=[
     {level:"update",text:"NSSF Year 4 rates apply from February 2026: Tier I up to KSh 9,000 and Tier II up to KSh 108,000, at 6% employee plus 6% employer. Due by the 9th."},
     {level:"update",text:"SHIF is 2.75% of gross pay, remitted to SHA by the 9th of the following month. Late remittance attracts 2% a month."},
     {level:"update",text:"Affordable Housing Levy is 1.5% employee plus 1.5% employer, due by the 9th working day after month end. Late payment attracts 3% a month."},
     {level:"update",text:"NITA levy is KSh 50 per employee per month, declared on the PAYE return and due by the 9th."},
-    {level:"warning",text:"County business permits run January to December. Renew before 31 December to avoid penalties."}
+    {level:"warning",text:"Under the County Licensing (Uniform Procedures) Act, 2024 a county permit runs 12 months from the date of issue. Renew before the expiry printed on it."}
   ];
   var DSTATUS = { done:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, ok:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, soon:{label:"Expiring soon",color:"#d97706",bg:"rgba(217,119,6,.12)"}, overdue:{label:"At risk",color:"#dc2626",bg:"rgba(220,38,38,.12)"}, missing:{label:"Not started",color:"#b91c1c",bg:"rgba(185,28,28,.12)"}, info:{label:"Needs a date",color:"#c2410c",bg:"rgba(194,65,12,.12)"} };
   var dState = { cnty: 'nairobi', filter: 'all', res: [] };

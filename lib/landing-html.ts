@@ -117,32 +117,32 @@ export const LANDING_HTML = String.raw`<!-- HERO -->
   <div class="mb-9" style="text-align:center">
     <span class="pill" style="background:var(--accent-soft);color:var(--accent);margin-bottom:14px">COVERAGE</span>
     <h2 style="font-size:clamp(24px,3.5vw,32px);font-weight:800;letter-spacing:-.02em;margin:0 0 10px">Permits tracked in all 47 counties</h2>
-    <p style="color:var(--muted);margin:0;font-size:15px">Add each branch with its county and ComplyScope tracks its permit and renewal. Three counties have extra detail on what the permit covers.</p>
+    <p style="color:var(--muted);margin:0;font-size:15px">Add each branch with its county and ComplyScope tracks its permit and renewal. Our <a href="/counties" style="color:var(--accent);font-weight:600">county guide</a> shows the permit name, where to apply and pay, and how long it lasts for every county.</p>
   </div>
   <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
     <div class="mc rounded-2xl p-6" style="background:var(--card);border:2px solid var(--accent)">
       <span class="pill" style="background:var(--accent);color:#fff;margin-bottom:12px">LIVE</span>
       <h3 style="font-weight:800;font-size:20px;margin:0 0 8px">Nairobi City County</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px"><b>Unified Business Permit (UBP)</b> — bundles the trade licence with fire, health, food hygiene and advertising approvals according to your activity and premises. Fees follow the County Finance Act, 2026. Apply via nairobiservices.go.ke or *647#.</p>
-      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Renewal deadline: 31 Dec annually</p>
+      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Valid 12 months from issue · pay yearly, half-yearly or quarterly</p>
     </div>
     <div class="mc rounded-2xl p-6" style="background:var(--card);border:2px solid var(--accent)">
       <span class="pill" style="background:var(--accent);color:#fff;margin-bottom:12px">LIVE</span>
       <h3 style="font-weight:800;font-size:20px;margin:0 0 8px">Mombasa County</h3>
-      <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px"><b>Single Business Permit</b> — fees by business type and size under the County Finance Act. Add-ons: fire certificate, public health permit, weights &amp; measures. Apply via Mombasa County eServices.</p>
-      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Renewal deadline: 31 Dec annually</p>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px"><b>Single Business Permit</b> — fees by business type and size under the County Finance Act. Add-ons: fire certificate, public health permit, weights &amp; measures. Apply via eportal.mombasa.go.ke.</p>
+      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Calendar-year permit · provisional permit issued on payment</p>
     </div>
     <div class="mc rounded-2xl p-6" style="background:var(--card);border:2px solid var(--accent)">
       <span class="pill" style="background:var(--accent);color:#fff;margin-bottom:12px">LIVE</span>
       <h3 style="font-weight:800;font-size:20px;margin:0 0 8px">Kiambu County</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px"><b>Single Business Permit</b> — fees by business type and size under the County Finance Act. Add-ons: fire inspection, public health (food) and signage approval are billed separately.</p>
-      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Renewal deadline: 31 Dec annually</p>
+      <p style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0">Valid 12 months from the date of issue</p>
     </div>
     <div class="rounded-2xl p-6" style="background:#f1f5f4;border:1px dashed var(--border)">
       <span class="pill" style="background:var(--accent2-soft);color:var(--accent2);margin-bottom:12px">ALL OTHER COUNTIES</span>
-      <h3 style="font-weight:800;font-size:20px;margin:0 0 8px">Kisumu · Nakuru · Uasin Gishu · and 41 more</h3>
-      <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px">Add a branch in any county. Its business permit, fire certificate and signage permit are tracked from the expiry dates you enter. Multi-county businesses get one permit per county of operation — we track all of them.</p>
-      <a href="/signup" style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0;text-decoration:none">Add your business →</a>
+      <h3 style="font-weight:800;font-size:20px;margin:0 0 8px">Nakuru · Kisumu · Machakos · and 41 more</h3>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 12px">Add a branch in any county and its permit, fire certificate and signage permit are tracked from the expiry dates you enter. Multi-county businesses get one permit per county — we track all of them.</p>
+      <a href="/counties" style="font-size:12.5px;color:var(--accent);font-weight:600;margin:0;text-decoration:none">Open the county guide →</a>
     </div>
   </div>
 </section>
