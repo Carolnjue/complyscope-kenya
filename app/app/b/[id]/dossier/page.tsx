@@ -44,6 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             ['Employees', String(p.employees)],
             ['Annual turnover', CS.TURNOVER[p.turnover]],
             ['VAT registered', ({ yes: 'Yes', no: 'No', unknown: 'Not sure' } as any)[p.vat]],
+            ['Income tax method', p.tot === 'yes' ? 'Turnover Tax (TOT)' : p.tot === 'no' ? 'Normal income tax' : 'Worked out from turnover'],
             ['Financial year end', CS.MONTH[(p.fyEnd || 12) - 1]],
             ['Locations', p.locations.map((l: any) => `${l.name} (${l.county})`).join('; ')],
           ].map(([k, v]) => <tr key={k}><th style={{ ...td, width: 220, color: '#64748b', fontWeight: 600 }}>{k}</th><td style={td}>{v}</td></tr>)}
