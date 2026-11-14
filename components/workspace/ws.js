@@ -184,6 +184,9 @@ export function mountWorkspace(rootEl, BID) {
         '<label class="f" for="aDate">Date filed or paid<input type="date" id="aDate" value="' + todayIso + '" max="' + todayIso + '"></label>' +
         '<label class="f" for="aRef" style="grid-column:1/-1">Acknowledgement or payment reference <small>Optional, e.g. iTax acknowledgement or M-Pesa code</small><input type="text" id="aRef" autocomplete="off"></label></div>';
     }
+    if (r.status !== 'na' && /Kenya Revenue Authority/.test(ob.auth || '') && CS.iso(TODAY) <= '2026-12-31' &&
+      r.overdue.concat(r.unconfirmed || []).some(function (o) { return o.due && CS.iso(o.due) <= '2025-12-31'; }))
+      form += '<div class="banner">KRA tax amnesty: penalties and interest on tax owed for periods up to 31 December 2025 can be waived if the principal tax is paid by 31 December 2026 (conditions apply). <a href="https://www.kra.go.ke/popular-links/finance-act-2026-what-it-means-for-you" target="_blank" rel="noopener">KRA — Finance Act 2026</a></div>';
     var history = ws.filings.filter(function (f) { return f.id === r.id; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 4);
     var histHTML = history.length ? '<div><p class="small" style="font-weight:700;margin-bottom:4px">Recent entries</p>' + history.map(function (f) { return '<div class="tiny muted">' + esc(CS.periodLabel(f.period)) + ' · ' + CS.fmt(CS.fromIso(f.date)) + (f.ref ? ' · ' + esc(f.ref) : '') + '</div>'; }).join('') + '</div>' : '';
     var primary = '';
