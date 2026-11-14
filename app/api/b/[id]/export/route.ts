@@ -3,11 +3,14 @@ import { loadWorkspace, evaluateWorkspace } from '@/lib/business';
 import CS from '@/lib/engine';
 
 const LABEL: Record<string, string> = { overdue: 'Overdue', soon: 'Due soon', ok: 'On track', missing: 'Not recorded', info: 'Needs a date', done: 'In place', na: 'Not applicable' };
-function csv(rows: any[][]) { return '\ufeff' + rows.map((r) => r.map((c) => { c = String(c ?? ''); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(',')).join('\r\n'); }
+// Cells that start like a formula are prefixed with ' so spreadsheet apps show them as text (CSV injection guard).
+function cell(v: any) { let c = String(v ?? ''); if (/^[=+@\t\r]/.test(c) || /^-[^0-9]/.test(c)) c = "'" + c; return /[",\n\r]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }
+function csv(rows: any[][]) { return '\ufeff' + rows.map((r) => r.map(cell).join(',')).join('\r\n'); }
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const a = await needBusiness((await params).id); if ('res' in a) return a.res;
-  const type = new URL(req.url).searchParams.get('type') || 'obligations';
+  const asked = new URL(req.url).searchParams.get('type') || 'obligations';
+  const type = ['obligations', 'filings', 'deadlines'].includes(asked) ? asked : 'obligations';
   const ws = await loadWorkspace(a.business.id);
   const today = CS.todayKE();
   const res = evaluateWorkspace(ws, today);

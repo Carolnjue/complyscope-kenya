@@ -4,9 +4,10 @@ import CS from '@/lib/engine';
 import { appUrl } from '@/lib/integrations';
 
 export const dynamic = 'force-dynamic';
-function esc(s: string) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function esc(s: string) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+// RFC 5545: lines longer than 75 octets are folded with CRLF + space.
+function fold(line: string) { const out: string[] = []; let cur = ''; for (const ch of line) { if (Buffer.byteLength(cur + ch) > 74) { out.push(cur); cur = ' ' + ch; } else cur += ch; } out.push(cur); return out.join('\r\n'); }
 function d8(t: number) { return CS.iso(t).replace(/-/g, ''); }
-function fold(line: string) { const out: string[] = []; while (line.length > 74) { out.push(line.slice(0, 74)); line = ' ' + line.slice(74); } out.push(line); return out.join('\r\n'); }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ token: string }> }) {
   const token = (await params).token.replace(/\.ics$/, '');
