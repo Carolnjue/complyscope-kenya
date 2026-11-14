@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import fs from 'fs';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -11,7 +12,14 @@ export function pool(): mysql.Pool {
   if (!global.__csPool) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL is not set');
-    global.__csPool = mysql.createPool({ uri: url, connectionLimit: 5, waitForConnections: true, dateStrings: true, charset: 'utf8mb4', timezone: '+03:00' });
+    const u = new URL(url);
+    const sock = u.searchParams.get('socket') || process.env.DB_SOCKET || ['/var/lib/mysql/mysql.sock', '/run/mysqld/mysqld.sock', '/tmp/mysql.sock'].find((f) => { try { return fs.existsSync(f); } catch { return false; } });
+    const useSock = !!sock && (u.hostname === 'localhost' || !!u.searchParams.get('socket'));
+    global.__csPool = mysql.createPool({
+      ...(useSock ? { socketPath: sock } : { host: u.hostname, port: Number(u.port || 3306) }),
+      user: decodeURIComponent(u.username), password: decodeURIComponent(u.password), database: decodeURIComponent(u.pathname.slice(1)),
+      connectionLimit: 5, waitForConnections: true, dateStrings: true, charset: 'utf8mb4', timezone: '+03:00'
+    });
   }
   return global.__csPool;
 }
