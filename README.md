@@ -22,7 +22,6 @@ All settings are environment variables (see `.env.example`). Never commit real v
 |---|---|---|
 | `DATABASE_URL` | yes | `mysql://user:pass@host:3306/db` |
 | `APP_URL` | yes | Public URL, e.g. `https://complyscope.pentarchsystemssolutions.co.ke` |
-| `SESSION_SECRET` | yes | Long random string |
 | `CRON_SECRET` | yes | Long random string used by the daily reminder job |
 | `SUPERADMIN_EMAILS` | yes | Comma-separated emails that get the admin console |
 | `UPLOAD_DIR` | no | Defaults to `../complyscope_uploads` (outside the web root) |
