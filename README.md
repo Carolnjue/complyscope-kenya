@@ -99,8 +99,10 @@ Rates and dates change. Review these at least once a year and whenever a Finance
 2. **Finance Act changes:**
    - PAYE, VAT, TOT, instalment tax and the filing deadlines. From the 2026 income year, individual returns are due 30 April under the Finance Act 2026.
    - Penalties and eTIMS rules.
+   - Monthly Rental Income (MRI) rate and band; KRA's draft 2026 rental income regulations may change registration rules.
+   - The KRA amnesty notice in `components/workspace/ws.js` switches itself off after 31 December 2026; remove it, or update it if the amnesty is extended.
 3. **Payroll:** NSSF earnings limits (these change each February), SHIF, Housing Levy and NITA.
-4. **Sector bodies:** TRA, KMPDC and PPB renewal notices; the KEBS levy cap.
+4. **Sector bodies:** TRA, KMPDC, PPB and EARB renewal notices; the KEBS levy cap; NTSA vehicle inspection rules.
 5. **Counties:** new portals and revenue systems (the National Treasury is rolling out a standard county revenue system, ICRMS), renewal deadlines and bundled permits.
 
 Mark the professional review as complete in the admin console once an accountant or lawyer has signed off.
