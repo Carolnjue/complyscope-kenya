@@ -37,3 +37,14 @@ jobs:
             **/.git*
             **/.git*/**
             .env
+            deployed.txt
+      - name: Signal restart (uploaded last)
+        if: env.HAS_FTP == 'true'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          echo "${GITHUB_SHA} $(date -u +%FT%TZ)" > deployed.txt
+          curl -sS --ssl-reqd -u "$FTP_USERNAME:$FTP_PASSWORD" -T deployed.txt "ftp://$FTP_SERVER${FTP_DIR%/}/deployed.txt"
