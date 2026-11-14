@@ -10,7 +10,7 @@ export default function Page() {
         <li><b>Account data:</b> your name, email address, optional mobile number and a securely hashed password.</li>
         <li><b>Business data you enter:</b> business name, legal form, KRA PIN and registration number if you add them, activities, employee count, turnover band, branch names and counties, permit and certificate dates, filing references and documents you upload.</li>
         <li><b>Usage data:</b> sign-in times, actions taken in the workspace (for your audit trail) and technical logs needed to keep the service secure.</li>
-        <li><b>Payment data:</b> when paid plans start, the M-Pesa number used, the amount and the M-Pesa receipt. We never see or store your M-Pesa PIN.</li>
+        <li><b>Payment data:</b> when paid plans start, the M-Pesa number used, the amount and the M-Pesa receipt, or the transaction code you enter for a manual payment. We never see or store your M-Pesa PIN or card details.</li>
       </ul>
       <h2>Why we use it</h2>
       <ul>
@@ -22,7 +22,7 @@ export default function Page() {
       <h2>Who we share it with</h2>
       <p>We do not sell personal data. We share it only with service providers that help us run ComplyScope, under contract: our hosting provider, our email provider, Safaricom (for M-Pesa payments) and, if you turn on SMS reminders, our SMS provider. Team members you invite can see the business data of businesses they belong to. We disclose data to authorities only where Kenyan law requires it.</p>
       <h2>Where it is stored</h2>
-      <p>Data is stored on servers operated by our hosting provider. Where data is held outside Kenya, we rely on safeguards required by the Data Protection Act and its regulations.</p>
+      <p>Data is stored on servers operated by our hosting provider. Where data is held outside Kenya, we rely on safeguards required by the Data Protection Act and its regulations. We keep backups so data can be restored after a fault; backups are protected like the live data and are overwritten on a rolling basis.</p>
       <h2>How long we keep it</h2>
       <p>We keep account and business data while your account is active. If you delete a business or close your account, we delete or anonymise the data within 90 days, except records we must keep by law (for example payment records, kept for the period required by the Tax Procedures Act).</p>
       <h2>Your rights</h2>
