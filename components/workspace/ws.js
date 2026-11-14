@@ -224,7 +224,7 @@ export function mountWorkspace(rootEl, BID) {
     var res = results();
     var act = res.filter(function (r) { return ['overdue', 'soon', 'missing', 'info'].indexOf(r.status) >= 0; }).slice(0, 8);
     var ag = CS.agenda(res, TODAY, 30).filter(function (a) { return a.days >= 0; }).slice(0, 8);
-    main.innerHTML = 
+    main.innerHTML = gettingStarted(res) +
       '<div class="panel panel-pad"><div class="summary">' + summaryHTML(res) + '</div></div>' +
       '<div class="cols"><div><div class="group-h"><h3>Do next</h3><a href="#obligations" class="small">All obligations</a></div><div class="list" id="ovList">' +
       (act.length ? act.map(function (r) { return itemHTML(r, res.indexOf(r)); }).join('') : '<div class="empty">Nothing needs action right now.</div>') + '</div></div>' +
@@ -232,6 +232,29 @@ export function mountWorkspace(rootEl, BID) {
       (ag.length ? ag.map(function (a) { var p = CS.parts(a.due); return '<div class="log-row" style="grid-template-columns:62px 1fr"><div class="datebox"><b class="num" style="font-size:18px">' + p.d + '</b><small>' + MON[p.m - 1] + '</small></div><div><b style="font-size:14.5px">' + esc(a.r.inst.title) + '</b><div class="tiny muted">' + esc(CS.periodLabel(a.period)) + (a.r.inst.loc ? ' · ' + esc(a.r.inst.loc.name) : '') + ' · ' + a.days + ' days</div></div></div>'; }).join('') : '<p class="small muted">No dated items in the next 30 days.</p>') +
       '</div></div></div>';
     $('#ovList', main).addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) openAction(res[+b.getAttribute('data-i')]); });
+    var gsHide = $('#gsHide', main);
+    if (gsHide) gsHide.addEventListener('click', function () { try { localStorage.setItem('cs_gs_hide_' + BID, '1'); } catch (e) {} var g = $('#gsPanel', main); if (g) g.remove(); });
+  }
+
+  // First-run checklist; disappears when every step is done or the user hides it.
+  function gettingStarted(res) {
+    if (!CAN_EDIT) return '';
+    try { if (localStorage.getItem('cs_gs_hide_' + BID)) return ''; } catch (e) {}
+    var live = res.filter(function (r) { return r.status !== 'na'; });
+    var unrecorded = live.filter(function (r) { return r.status === 'missing' || r.status === 'info'; }).length;
+    var steps = [
+      [true, 'Set up the business profile', 'Done. Edit it any time under Profile.', '#profile'],
+      [live.length > 0 && unrecorded <= Math.floor(live.length / 3), 'Record where you stand', unrecorded + ' of ' + live.length + ' items still need a date or a yes/no. Open each one under Obligations.', '#obligations'],
+      [(ws.filings || []).length > 0, 'Log a recent filing', 'Mark last month’s PAYE, VAT or levy as filed so the calendar starts from the right place.', '#obligations'],
+      [(ws.documents || []).length > 0, 'Upload a permit or certificate', 'Keep proof in one place for inspections and audits.', '#documents'],
+      [(META.teamSize || 1) > 1, 'Invite your accountant or a colleague', 'Share the workload; viewers can see everything without changing it.', '#team']
+    ];
+    var done = steps.filter(function (s) { return s[0]; }).length;
+    if (done === steps.length) return '';
+    return '<div class="panel panel-pad" id="gsPanel" style="margin-bottom:16px"><div class="group-h" style="margin:0 0 10px"><h3>Getting started <span class="small muted">' + done + ' of ' + steps.length + ' done</span></h3><button type="button" class="btn sm ghost" id="gsHide">Hide</button></div>' +
+      '<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">' + steps.map(function (s) {
+        return '<li style="display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (s[0] ? 'background:#0d9488;color:#fff">✓' : 'border:2px solid #cbd5e1;color:transparent">·') + '</span><div><span class="sr">' + (s[0] ? 'Done: ' : 'To do: ') + '</span>' + (s[0] ? '<b>' + esc(s[1]) + '</b>' : '<a href="' + s[3] + '"><b>' + esc(s[1]) + '</b></a>') + '<div class="small muted">' + esc(s[2]) + '</div></div></li>';
+      }).join('') + '</ol></div>';
   }
 
   var obFilter = { status: 'all', loc: 'all' };
