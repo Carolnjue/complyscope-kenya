@@ -1,6 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import CS from '@/lib/engine';
+import COUNTY_DATA, { COUNTY_BY_NAME } from '@/lib/counties';
 
 /* Drives the "Live Dashboard" section of the landing page with the real rules engine and an example business. */
 export default function LandingDemo() {
@@ -27,12 +28,14 @@ export default function LandingDemo() {
       (root.querySelector('[data-close]') as any).focus();
     }
   // ---------------- Live dashboard section of the design, driven by the rules engine ----------------
-    var DCOUNTY = { nairobi: 'Nairobi City', mombasa: 'Mombasa', kiambu: 'Kiambu' };
-  var DINFO = {
-    nairobi:{name:"Nairobi City County",permit:"Unified Business Permit (UBP)",fee:"Set by the Nairobi City County Finance Act, 2026 by activity and premises size",portal:"nairobiservices.go.ke · Nairobi Pay *647#",addons:"The UBP bundles trade licence, fire, health, food hygiene and advertising approvals according to activity and premises.",alerts:[{level:"update",text:"Nairobi UBP fees follow the Nairobi City County Finance Act, 2026. Confirm your fee band on nairobiservices.go.ke before renewing."}]},
-    mombasa:{name:"Mombasa County",permit:"Single Business Permit (SBP)",fee:"Set by the Mombasa County Finance Act by business type and size",portal:"Mombasa County eServices portal (M-Pesa / card — no office visit)",addons:"Add-ons: fire certificate, public health permit, weights & measures (sector-dependent).",alerts:[{level:"warning",text:"Mombasa County SBP expires 31 Dec. Renewal via eServices portal; late renewal attracts surcharge."}]},
-    kiambu:{name:"Kiambu County",permit:"Single Business Permit (SBP)",fee:"Set by the Kiambu County Finance Act by business type and size",portal:"Kiambu County Revenue Authority (KCRA) · *476#",addons:"Add-ons: fire inspection, public health (food) and signage approval are charged separately.",alerts:[{level:"update",text:"Kiambu SBP fees follow the Kiambu County Finance Act; fire, food and signage approvals are billed separately."}]}
-  };
+    function dInfo(name) {
+      var c = COUNTY_BY_NAME[name] || COUNTY_BY_NAME['Nairobi City'];
+      var full = c.name + ' County';
+      var portal = c.portal ? c.portal.label + (c.portal.url ? ' (' + c.portal.url.replace(/^https?:\/\//, '') + ')' : '') : 'County or sub-county revenue office';
+      return { name: full, permit: c.permit, fee: 'Set by the ' + full + ' Finance Act by activity, size and zone', portal: portal + (c.ussd ? ' · ' + c.ussd : ''),
+        addons: c.notes[0] || 'Fees and add-ons follow the county Finance Act; confirm on your county invoice.',
+        alerts: c.notes.slice(1, 3).map(function (t) { return { level: 'update', text: t }; }) };
+    }
   var SHARED_ALERTS=[
     {level:"update",text:"NSSF Year 4 rates apply from February 2026: Tier I up to KSh 9,000 and Tier II up to KSh 108,000, at 6% employee plus 6% employer. Due by the 9th."},
     {level:"update",text:"SHIF is 2.75% of gross pay, remitted to SHA by the 9th of the following month. Late remittance attracts 2% a month."},
@@ -41,16 +44,16 @@ export default function LandingDemo() {
     {level:"warning",text:"Under the County Licensing (Uniform Procedures) Act, 2024 a county permit runs 12 months from the date of issue. Renew before the expiry printed on it."}
   ];
   var DSTATUS = { done:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, ok:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, soon:{label:"Expiring soon",color:"#d97706",bg:"rgba(217,119,6,.12)"}, overdue:{label:"At risk",color:"#dc2626",bg:"rgba(220,38,38,.12)"}, missing:{label:"Not started",color:"#b91c1c",bg:"rgba(185,28,28,.12)"}, info:{label:"Needs a date",color:"#c2410c",bg:"rgba(194,65,12,.12)"} };
-  var dState = { cnty: 'nairobi', filter: 'all', res: [] };
+  var dState = { cnty: 'Nairobi City', filter: 'all', res: [] };
   function dFmt(t){ var p = CS.parts(t); return MON[p.m-1] + ' ' + p.d + ', ' + p.y; }
   function dBuild() {
     var ws0 = CS.sample('usafi', TODAY);
-    ws0.profile.locations = [{ id: 'l1', name: 'Head office', county: DCOUNTY[dState.cnty], signage: true }];
+    ws0.profile.locations = [{ id: 'l1', name: 'Head office', county: dState.cnty, signage: true }];
     Object.keys(ws0.records).forEach(function (k) { if (/@l[23]$/.test(k)) delete ws0.records[k]; });
     dState.res = CS.evaluateAll(ws0, TODAY).filter(function (r) { return r.status !== 'na'; });
   }
   function dRender() {
-    var ci = DINFO[dState.cnty], obs = dState.res;
+    var ci = dInfo(dState.cnty), obs = dState.res;
     var isCounty = function (r) { return r.inst.ob.group === 'County'; };
     var sc = CS.score(obs).value || 0;
     $('#scoreNum').textContent = sc;
@@ -83,7 +86,10 @@ export default function LandingDemo() {
     var ac = { contested: '#c2410c', update: 'var(--accent)', warning: 'var(--warn)' };
     $('#alertsList').innerHTML = ci.alerts.concat(SHARED_ALERTS).map(function (a) { return '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border);line-height:1.5"><span class="dot" style="background:' + ac[a.level] + ';margin-top:5px;flex-shrink:0"></span><span>' + a.text + '</span></div>'; }).join('');
   }
-  $$('.jbtn').forEach(function (b) { b.addEventListener('click', function () { $$('.jbtn').forEach(function (x) { x.classList.remove('active'); }); b.classList.add('active'); dState.cnty = b.getAttribute('data-cnty'); dBuild(); dRender(); }); });
+  var sel = $('#cntySel') as any;
+  if (sel && sel.options.length < 2) COUNTY_DATA.forEach(function (c) { var o = document.createElement('option'); o.value = c.name; o.textContent = c.name; sel.appendChild(o); });
+  $$('button.jbtn[data-cnty]').forEach(function (b) { b.addEventListener('click', function () { $$('.jbtn').forEach(function (x) { x.classList.remove('active'); }); b.classList.add('active'); if (sel) sel.value = ''; dState.cnty = b.getAttribute('data-cnty'); dBuild(); dRender(); }); });
+  if (sel) sel.addEventListener('change', function () { if (!sel.value) return; $$('.jbtn').forEach(function (x) { x.classList.remove('active'); }); sel.classList.add('active'); dState.cnty = sel.value; dBuild(); dRender(); });
   $$('.fbtn').forEach(function (b) { b.addEventListener('click', function () { $$('.fbtn').forEach(function (x) { x.classList.remove('active'); }); b.classList.add('active'); dState.filter = b.getAttribute('data-filter'); dRender(); }); });
   $('#scanBtn').addEventListener('click', function () {
     var bar = $('#scanBar'); bar.style.display = 'block'; var btn = $('#scanBtn'); btn.textContent = 'Scanning…'; btn.disabled = true;
