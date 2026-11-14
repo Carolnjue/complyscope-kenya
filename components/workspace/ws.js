@@ -68,7 +68,18 @@ export function mountWorkspace(rootEl, BID) {
     var f = $('.dialog input, .dialog select, .dialog button', root); if (f) f.focus();
   }
   function closeDialog() { $('#dialogRoot').innerHTML = ''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('#scrim')) closeDialog(); });
+  document.addEventListener('keydown', function (e) {
+    if (!$('#scrim')) return;
+    if (e.key === 'Escape') { closeDialog(); return; }
+    if (e.key !== 'Tab') return;
+    // Keep keyboard focus inside the open dialog
+    var items = $$('#dialogRoot .dialog a[href], #dialogRoot .dialog button:not([disabled]), #dialogRoot .dialog input:not([disabled]), #dialogRoot .dialog select:not([disabled]), #dialogRoot .dialog textarea:not([disabled]), #dialogRoot .dialog [tabindex]:not([tabindex="-1"])')
+      .filter(function (el) { return el.offsetParent !== null; });
+    if (!items.length) return;
+    var first = items[0], last = items[items.length - 1], inside = document.activeElement && document.activeElement.closest && document.activeElement.closest('#dialogRoot');
+    if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+  });
 
   function detailBody(r) {
     var ob = r.inst.ob, src = r.inst.src;
