@@ -346,6 +346,9 @@ export function mountWorkspace(rootEl, BID) {
       cb('pWeigh', 'We use scales to sell by weight', p.weighing) +
       cb('pFum', 'We offer fumigation or pest control', p.fumigation) +
       cb('pWaste', 'We collect or transport waste', p.wasteTransport) +
+      cb('pPharm', 'We run a pharmacy or sell medicines', p.pharmacy) +
+      cb('pClinic', 'We run a clinic, hospital or other health facility', p.healthFacility) +
+      cb('pLiquor', 'We sell alcohol', p.liquor) +
       '</div></fieldset>' +
       '<fieldset><legend>Locations</legend><p class="small muted" style="margin-top:-6px">Add the head office and every branch. Each needs its own county permit.</p><div id="pLocs" style="display:flex;flex-direction:column;gap:10px"></div><div><button type="button" class="btn sm" id="addLoc">Add a location</button></div></fieldset>' +
       '<p class="err hidden" id="pErr" role="alert"></p>' +
@@ -384,7 +387,7 @@ export function mountWorkspace(rootEl, BID) {
       PENDING_PROFILE = {
         name: name, structure: $('#pStruct', main).value, stage: $('#pStage', main).value, incDate: $('#pInc', main).value, fyEnd: +$('#pFy', main).value,
         sectors: sectors, activities: $('#pAct', main).value.trim().slice(0, 400), employees: +empRaw, turnover: $('#pTurn', main).value, vat: $('#pVat', main).value,
-        personalData: $('#pData', main).checked, foreignStaff: $('#pForeign', main).checked, weighing: $('#pWeigh', main).checked, fumigation: $('#pFum', main).checked, wasteTransport: $('#pWaste', main).checked, cctv: $('#pCctv', main).checked,
+        personalData: $('#pData', main).checked, foreignStaff: $('#pForeign', main).checked, weighing: $('#pWeigh', main).checked, fumigation: $('#pFum', main).checked, wasteTransport: $('#pWaste', main).checked, cctv: $('#pCctv', main).checked, pharmacy: $('#pPharm', main).checked, healthFacility: $('#pClinic', main).checked, liquor: $('#pLiquor', main).checked,
         kraPin: $('#pPin', main).value.trim(), regNo: $('#pReg', main).value.trim(),
         locations: locs.map(function (l) { return { id: l.id, name: l.name.slice(0, 80), county: l.county, signage: l.signage }; })
       };
