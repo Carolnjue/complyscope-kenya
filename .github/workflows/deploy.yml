@@ -22,6 +22,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          NEXT_PUBLIC_BUILD: ${{ github.sha }}
       - name: Deploy standalone bundle over FTPS
         # Skipped until the FTP secrets are added in Settings > Secrets and variables > Actions
         if: env.HAS_FTP == 'true'
