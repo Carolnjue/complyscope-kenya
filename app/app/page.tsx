@@ -35,7 +35,7 @@ export default async function Page() {
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><h3 style={{ fontSize: 18, fontWeight: 800 }}>{b.name}</h3><span className="stp s-info">{b.role}</span></div>
               <p className="small muted">{counties.join(', ')}</p>
               <p style={{ fontSize: 28, fontWeight: 800, color: s.value == null ? 'var(--muted)' : s.value >= 80 ? 'var(--ok)' : s.value >= 55 ? 'var(--warn)' : 'var(--crit)' }}>{s.value ?? '–'}<span className="small muted" style={{ fontWeight: 500 }}> / 100</span></p>
-              <p className="small">{(s.parts.overdue || 0)} overdue · {(s.parts.soon || 0)} due in 14 days · {(s.parts.missing || 0) + (s.parts.info || 0)} not recorded</p>
+              <p className="small">{(s.parts.overdue || 0)} overdue · {(s.parts.soon || 0)} due soon · {(s.parts.missing || 0) + (s.parts.info || 0)} not recorded</p>
               {next ? <p className="small muted">Next: {next.r.inst.title} — {CS.fmt(next.due)}</p> : null}
             </Link>
           ))}

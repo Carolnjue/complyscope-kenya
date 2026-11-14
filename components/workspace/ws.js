@@ -49,10 +49,10 @@ export function mountWorkspace(rootEl, BID) {
   function summaryHTML(results) {
     var s = CS.score(results), p = s.parts;
     var dated = CS.agenda(results, TODAY, 90).filter(function (a) { return a.days >= 0; }).length;
-    var k = [['Overdue', p.overdue || 0, 'overdue'], ['Due in 14 days', p.soon || 0, 'soon'], ['Not recorded', (p.missing || 0) + (p.info || 0), 'missing'], ['Dates in 90 days', dated, 'ok'], ['In place / on track', (p.done || 0) + (p.ok || 0), 'done']];
+    var k = [['Overdue', p.overdue || 0, 'overdue'], ['Due soon', p.soon || 0, 'soon'], ['Not recorded', (p.missing || 0) + (p.info || 0), 'missing'], ['Dates in 90 days', dated, 'ok'], ['In place / on track', (p.done || 0) + (p.ok || 0), 'done']];
     return ring(s.value) +
       '<div style="display:flex;flex-direction:column;gap:12px"><div><h3 style="font-size:22px">' + scoreWord(s.value, p) + '</h3>' +
-      '<p class="tiny muted" style="margin-top:4px">The score is the share of your obligations that are in order: items in place or on track count fully, items due within 14 days count 80%, items missing a date 50%, and overdue or unrecorded items count nothing. It is a working indicator, not a certificate.</p></div>' +
+      '<p class="tiny muted" style="margin-top:4px">The score is the share of your obligations that are in order: items in place or on track count fully, items due soon (returns within 14 days, licences within their renewal window) count 80%, items missing a date 50%, and overdue or unrecorded items count nothing. It is a working indicator, not a certificate.</p></div>' +
       '<div class="kpis">' + k.map(function (x) { return '<div class="kpi stripe-' + x[2] + '"><span>' + x[0] + '</span><b class="num">' + x[1] + '</b></div>'; }).join('') + '</div></div>';
   }
 

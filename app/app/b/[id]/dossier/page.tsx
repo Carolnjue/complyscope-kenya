@@ -50,7 +50,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </tbody></table>
 
         <h2 style={{ fontSize: 18, fontWeight: 800, margin: '26px 0 8px', borderBottom: '2px solid #0d9488', paddingBottom: 4 }}>Summary</h2>
-        <p style={{ fontSize: 14 }}>Working score <b>{s.value == null ? 'not available' : s.value + ' out of 100'}</b>. {c.overdue || 0} overdue, {c.soon || 0} due within 14 days, {(c.missing || 0) + (c.info || 0)} not recorded or missing a date, {(c.done || 0) + (c.ok || 0)} in place or on track, {c.na || 0} marked not applicable.</p>
+        <p style={{ fontSize: 14 }}>Working score <b>{s.value == null ? 'not available' : s.value + ' out of 100'}</b>. {c.overdue || 0} overdue, {c.soon || 0} due soon, {(c.missing || 0) + (c.info || 0)} not recorded or missing a date, {(c.done || 0) + (c.ok || 0)} in place or on track, {c.na || 0} marked not applicable.</p>
 
         {groups.map((g) => {
           const items = res.filter((r: any) => r.inst.ob.group === g);

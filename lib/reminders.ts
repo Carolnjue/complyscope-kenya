@@ -18,7 +18,7 @@ export async function runReminders(today = CS.todayKE()) {
     const ws = await loadWorkspace(b.id);
     if (!ws) continue;
     const res = evaluateWorkspace(ws, today);
-    const due = CS.agenda(res, today, 15).filter((a: any) => NOTIFY_DAYS.includes(a.days));
+    const due = CS.agenda(res, today, 95).filter((a: any) => NOTIFY_DAYS.includes(a.days) || (a.r.inst.ob.leadDays && a.days === a.r.inst.ob.leadDays));
     if (!due.length) continue;
     const members = await q<any>('SELECT u.id, u.name, u.email, u.phone, u.remind_email, u.remind_sms FROM memberships m JOIN users u ON u.id = m.user_id WHERE m.business_id = ? AND m.role IN ("owner","editor") AND u.is_disabled = 0', [b.id]);
     // Only remind once per item, period and stage
