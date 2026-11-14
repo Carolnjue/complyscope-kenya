@@ -73,7 +73,7 @@ export default function LandingDemo() {
     if (dState.filter === 'county') list = list.filter(isCounty);
     if (dState.filter === 'action') list = list.filter(function (o) { return o.status !== 'done' && o.status !== 'ok'; });
     list.sort(function (a, b) { return (a.next == null ? 9e15 : a.next) - (b.next == null ? 9e15 : b.next); });
-    var freq = function (ob) { return { once: 'One-off', monthly: 'Monthly', anniversary: 'Annual', fy: 'Annual', instalment: 'Quarterly instalments', expiry: ob.validityMonths ? 'Every ' + ob.validityMonths + ' months' : 'Annual' }[ob.kind]; };
+    var freq = function (ob) { return { once: 'One-off', monthly: 'Monthly', anniversary: 'Annual', fy: 'Annual', instalment: 'Four instalments a year', expiry: ob.validityMonths ? 'Every ' + ob.validityMonths + ' months' : 'Annual' }[ob.kind]; };
     $('#obligationBody').innerHTML = list.map(function (o) {
       var s = DSTATUS[o.status], dl = o.days;
       var dlTxt = o.next == null ? '<span style="color:var(--muted)">—</span>' : dl < 0 ? '<span style="color:var(--crit);font-weight:700">Overdue</span>' : '<span style="font-weight:700;color:' + (dl <= 30 ? 'var(--crit)' : dl <= 60 ? 'var(--warn)' : 'var(--text)') + '">' + dl + 'd</span>';
