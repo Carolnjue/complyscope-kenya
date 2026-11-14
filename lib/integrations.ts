@@ -36,7 +36,7 @@ async function mailer() {
 export function emailLayout(title: string, body: string) {
   return `<!DOCTYPE html><html><body style="margin:0;background:#f6fbf9;font-family:'Work Sans',Arial,sans-serif;color:#0f172a">
   <div style="max-width:560px;margin:0 auto;padding:28px 20px">
-    <div style="font-weight:800;font-size:18px;margin-bottom:18px"><span style="display:inline-block;width:28px;height:28px;border-radius:8px;background:#0d9488;vertical-align:middle;margin-right:8px"></span>ComplyScope <span style="font-size:10px;color:#0d9488;letter-spacing:.1em">KENYA</span></div>
+    <div style="font-weight:800;font-size:18px;margin-bottom:18px"><span style="display:inline-block;width:28px;height:28px;border-radius:8px;background:#0f766e;vertical-align:middle;margin-right:8px"></span>ComplyScope <span style="font-size:10px;color:#0f766e;letter-spacing:.1em">KENYA</span></div>
     <div style="background:#fff;border:1px solid rgba(15,23,42,.08);border-radius:14px;padding:24px">
       <h1 style="font-size:20px;margin:0 0 12px">${escHtml(title)}</h1>${body}
     </div>
@@ -44,7 +44,7 @@ export function emailLayout(title: string, body: string) {
   </div></body></html>`;
 }
 export function button(href: string, label: string) {
-  return `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#0d9488;color:#fff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:10px">${label}</a></p><p style="font-size:12px;color:#64748b;word-break:break-all">Or open this link: ${href}</p>`;
+  return `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:10px">${label}</a></p><p style="font-size:12px;color:#64748b;word-break:break-all">Or open this link: ${href}</p>`;
 }
 
 /** Queues an email and sends it right away when SMTP is configured. Returns true when sent. */

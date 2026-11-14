@@ -21,7 +21,7 @@ export default async function Page({ params }: { params: Promise<{ id: string; p
       <style>{`@media print{.site-header,footer,.noprint{display:none!important}@page{margin:16mm}}`}</style>
       <div style={{ maxWidth: 680, margin: '0 auto' }}>
         <div className="noprint" style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginBottom: 16 }}><a className="btn sm" href={'/app/b/' + id + '#billing'}>Back to billing</a><PrintButton /></div>
-        <p style={{ fontSize: 12, letterSpacing: '.12em', fontWeight: 700, color: '#0d9488' }}>COMPLYSCOPE KENYA · PAYMENT RECEIPT</p>
+        <p style={{ fontSize: 12, letterSpacing: '.12em', fontWeight: 700, color: '#0f766e' }}>COMPLYSCOPE KENYA · PAYMENT RECEIPT</p>
         <h1 style={{ fontSize: 28, fontWeight: 800, margin: '6px 0 2px' }}>Receipt CS-{String(p.id).padStart(6, '0')}</h1>
         <p style={{ color: '#64748b', fontSize: 13.5, marginBottom: 20 }}>{SELLER.name} · {SELLER.place} · {SELLER.email}{SELLER.web ? ' · ' + SELLER.web : ''}</p>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}><tbody>

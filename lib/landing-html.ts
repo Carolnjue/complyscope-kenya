@@ -83,7 +83,7 @@ export const LANDING_HTML = String.raw`<!-- HERO -->
       </div>
 
       <!-- Obligations table -->
-      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin-bottom:6px">
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin-bottom:6px" tabindex="0" role="region" aria-label="Sample obligations table">
         <table class="w-full text-sm" style="min-width:680px">
           <thead>
             <tr style="background:#f8faf9;color:var(--muted)" class="text-xs uppercase tracking-wide">
@@ -187,7 +187,7 @@ export const LANDING_HTML = String.raw`<!-- HERO -->
 
 <!-- CTA -->
 <section id="cta" class="max-w-6xl mx-auto px-5 pb-14">
-  <div class="rounded-2xl p-8 sm:p-12" style="background:linear-gradient(135deg,#0d9488,#0f766e);text-align:center;color:#fff">
+  <div class="rounded-2xl p-8 sm:p-12" style="background:linear-gradient(135deg,#0f766e,#115e59);text-align:center;color:#fff">
     <h2 style="font-size:clamp(22px,3.5vw,30px);font-weight:800;margin:0 0 12px">Know your compliance score today — free.</h2>
     <p style="color:#c9e9e4;font-size:15px;margin:0 auto 26px;max-width:520px">Run a ten-minute gap analysis for your business in any county. No card or M-Pesa needed. You'll leave with a prioritised fix list — and the deadlines.</p>
     <a href="/signup" style="min-height:48px;display:inline-flex;align-items:center;padding:0 28px;border-radius:12px;background:#fff;color:var(--accent);font-weight:700;font-size:15px;text-decoration:none">Add your business — free</a>

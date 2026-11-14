@@ -43,7 +43,7 @@ export default function LandingDemo() {
     {level:"update",text:"NITA levy is KSh 50 per employee per month, declared on the PAYE return and due by the 9th."},
     {level:"warning",text:"Under the County Licensing (Uniform Procedures) Act, 2024 a county permit runs 12 months from the date of issue. Renew before the expiry printed on it."}
   ];
-  var DSTATUS = { done:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, ok:{label:"Compliant",color:"#059669",bg:"rgba(5,150,105,.12)"}, soon:{label:"Expiring soon",color:"#d97706",bg:"rgba(217,119,6,.12)"}, overdue:{label:"At risk",color:"#dc2626",bg:"rgba(220,38,38,.12)"}, missing:{label:"Not started",color:"#b91c1c",bg:"rgba(185,28,28,.12)"}, info:{label:"Needs a date",color:"#c2410c",bg:"rgba(194,65,12,.12)"} };
+  var DSTATUS = { done:{label:"Compliant",color:"#047857",bg:"rgba(5,150,105,.12)"}, ok:{label:"Compliant",color:"#047857",bg:"rgba(5,150,105,.12)"}, soon:{label:"Expiring soon",color:"#92400e",bg:"rgba(217,119,6,.12)"}, overdue:{label:"At risk",color:"#b91c1c",bg:"rgba(220,38,38,.12)"}, missing:{label:"Not started",color:"#b91c1c",bg:"rgba(185,28,28,.12)"}, info:{label:"Needs a date",color:"#9a3412",bg:"rgba(194,65,12,.12)"} };
   var dState = { cnty: 'Nairobi City', filter: 'all', res: [] };
   function dFmt(t){ var p = CS.parts(t); return MON[p.m-1] + ' ' + p.d + ', ' + p.y; }
   function dBuild() {
@@ -83,7 +83,7 @@ export default function LandingDemo() {
     $('#tableNote').textContent = 'Showing ' + list.length + ' of ' + obs.length + ' obligations for ' + ci.name + '. Deadlines computed live from today. County fees indicative — verify with the county revenue office.';
     var soon = CS.agenda(obs, TODAY, 90).filter(function (a) { return a.days >= 0; }).slice(0, 5);
     $('#deadlineList').innerHTML = soon.map(function (a) { return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border)"><span style="line-height:1.45">' + esc(a.r.inst.title) + '</span><span style="font-weight:700;font-size:12px;white-space:nowrap;color:' + (a.days <= 30 ? 'var(--crit)' : 'var(--warn)') + '">' + a.days + 'd · ' + dFmt(a.due).split(',')[0] + '</span></div>'; }).join('');
-    var ac = { contested: '#c2410c', update: 'var(--accent)', warning: 'var(--warn)' };
+    var ac = { contested: '#9a3412', update: 'var(--accent)', warning: 'var(--warn)' };
     $('#alertsList').innerHTML = ci.alerts.concat(SHARED_ALERTS).map(function (a) { return '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border);line-height:1.5"><span class="dot" style="background:' + ac[a.level] + ';margin-top:5px;flex-shrink:0"></span><span>' + a.text + '</span></div>'; }).join('');
   }
   var sel = $('#cntySel') as any;

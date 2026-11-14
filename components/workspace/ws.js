@@ -253,7 +253,7 @@ export function mountWorkspace(rootEl, BID) {
     if (done === steps.length) return '';
     return '<div class="panel panel-pad" id="gsPanel" style="margin-bottom:16px"><div class="group-h" style="margin:0 0 10px"><h3>Getting started <span class="small muted">' + done + ' of ' + steps.length + ' done</span></h3><button type="button" class="btn sm ghost" id="gsHide">Hide</button></div>' +
       '<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">' + steps.map(function (s) {
-        return '<li style="display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (s[0] ? 'background:#0d9488;color:#fff">✓' : 'border:2px solid #cbd5e1;color:transparent">·') + '</span><div><span class="sr">' + (s[0] ? 'Done: ' : 'To do: ') + '</span>' + (s[0] ? '<b>' + esc(s[1]) + '</b>' : '<a href="' + s[3] + '"><b>' + esc(s[1]) + '</b></a>') + '<div class="small muted">' + esc(s[2]) + '</div></div></li>';
+        return '<li style="display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (s[0] ? 'background:#0f766e;color:#fff">✓' : 'border:2px solid #cbd5e1;color:transparent">·') + '</span><div><span class="sr">' + (s[0] ? 'Done: ' : 'To do: ') + '</span>' + (s[0] ? '<b>' + esc(s[1]) + '</b>' : '<a href="' + s[3] + '"><b>' + esc(s[1]) + '</b></a>') + '<div class="small muted">' + esc(s[2]) + '</div></div></li>';
       }).join('') + '</ol></div>';
   }
 
@@ -516,7 +516,7 @@ export function mountWorkspace(rootEl, BID) {
   }
 
   function calendarPanel() {
-    return '<div class="panel panel-pad" style="display:flex;flex-direction:column;gap:10px"><h3 style="font-size:18px">Subscribe in your calendar</h3><p class="small muted">Add this link to Google Calendar (Other calendars → From URL), Outlook or your phone. Your deadlines then appear and update automatically, with an alert two days before each one.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" readonly id="calUrl" value="' + esc(META.calendarUrl) + '" style="flex:1;min-width:240px" onclick="this.select()"><button type="button" class="btn sm" id="calCopy">Copy link</button></div><p class="tiny muted">Keep this link private: anyone with it can see your deadlines.</p></div>';
+    return '<div class="panel panel-pad" style="display:flex;flex-direction:column;gap:10px"><h3 style="font-size:18px">Subscribe in your calendar</h3><p class="small muted">Add this link to Google Calendar (Other calendars → From URL), Outlook or your phone. Your deadlines then appear and update automatically, with an alert two days before each one.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" readonly id="calUrl" aria-label="Calendar subscription link" value="' + esc(META.calendarUrl) + '" style="flex:1;min-width:240px" onclick="this.select()"><button type="button" class="btn sm" id="calCopy">Copy link</button></div><p class="tiny muted">Keep this link private: anyone with it can see your deadlines.</p></div>';
   }
 
 
