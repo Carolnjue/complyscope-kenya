@@ -22,7 +22,7 @@ All settings are environment variables (see `.env.example`). Never commit real v
 |---|---|---|
 | `DATABASE_URL` | yes | `mysql://user:pass@host:3306/db` |
 | `APP_URL` | yes | Public URL, e.g. `https://complyscope.pentarchsystemssolutions.co.ke` |
-| `CRON_SECRET` | yes | Long random string used by the daily reminder job |
+| `CRON_SECRET` | no | Optional key to force a reminder run more than once a day |
 | `SUPERADMIN_EMAILS` | yes | Comma-separated emails that get the admin console |
 | `UPLOAD_DIR` | no | Defaults to `../complyscope_uploads` (outside the web root) |
 | `SMTP_*`, `MAIL_FROM` | later | Email. Until set, sign-ups auto-verify and invite links are shown on screen |
@@ -37,7 +37,7 @@ All settings are environment variables (see `.env.example`). Never commit real v
 4. Create an FTP account limited to the application root.
 5. In GitHub → Settings → Secrets and variables → Actions add `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_DIR` (e.g. `/`).
 6. Push to `main`. The workflow builds `.next/standalone` and uploads it; `tmp/restart.txt` changes on every build so Passenger restarts the app.
-7. Cron job (daily, e.g. 06:00): `curl -fsS "https://<your-domain>/api/cron?key=<CRON_SECRET>" > /dev/null`
+7. Cron job (daily, e.g. 06:00): `curl -fsS "https://<your-domain>/api/cron" > /dev/null`
 
 ## County data
 

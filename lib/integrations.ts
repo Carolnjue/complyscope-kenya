@@ -12,7 +12,7 @@ export function integrationStatus() {
     mpesa: !!(e.MPESA_CONSUMER_KEY && e.MPESA_CONSUMER_SECRET && e.MPESA_SHORTCODE && e.MPESA_PASSKEY),
     mpesaEnv: e.MPESA_ENV === 'production' ? 'production' : 'sandbox',
     sms: !!(e.AT_USERNAME && e.AT_API_KEY),
-    cron: !!e.CRON_SECRET,
+    cron: true,
   };
 }
 

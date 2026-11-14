@@ -23,7 +23,7 @@ export default function AdminConsole({ me, data }: any) {
           <h3 style={{ fontSize: 18 }}>Integrations</h3>
           <div className="kpis">
             <Status on={st.email} label="Email (SMTP)" pendingText="Add SMTP_HOST, SMTP_USER and SMTP_PASS to the app settings." />
-            <Status on={st.cron} label="Reminder job" pendingText="Add CRON_SECRET and the daily cron job." />
+            <Status on={st.cron} label="Reminder job" pendingText="Add the daily cron job." />
             <Status on={st.mpesa} label={'M-Pesa (' + st.mpesaEnv + ')'} pendingText="Add the Daraja keys when ready. Accounts stay on the free pilot." />
             <Status on={st.sms} label="SMS (Africa's Talking)" pendingText="Add AT_USERNAME and AT_API_KEY when ready." />
             <Status on={data.settings.review_status === 'complete'} label="Professional review" pendingText="Mark complete once an accountant or lawyer has signed off the rules and terms." />
